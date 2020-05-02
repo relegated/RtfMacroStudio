@@ -1,0 +1,15 @@
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\bin\Debug\RtfMacroStudioViewModel.exe.config
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\bin\Debug\RtfMacroStudioViewModel.exe
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\bin\Debug\RtfMacroStudioViewModel.pdb
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudio.csprojAssemblyReference.cache
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\MainWindow.g.cs
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\App.g.cs
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel_MarkupCompile.cache
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel_MarkupCompile.lref
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\MainWindow.baml
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel.g.resources
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel.Properties.Resources.resources
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudio.csproj.GenerateResource.cache
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudio.csproj.CoreCompileInputs.cache
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel.exe
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel.pdb
