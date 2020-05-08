@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using System.Windows.Input;
+using static RtfMacroStudioViewModel.Enums.Enums;
 
 namespace RtfMacroStudioViewModel.ViewModel
 {
@@ -22,6 +24,16 @@ namespace RtfMacroStudioViewModel.ViewModel
             CurrentTaskList.Add(new MacroTask()
             {
                 Line = paragraph,
+                MacroTaskType = EMacroTaskType.Text
+            });
+        }
+
+        public void AddSpecialKeyMacroTask(Key specialKey)
+        {
+            CurrentTaskList.Add(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.SpecialKey,
+                KeyStroke = specialKey,
             });
         }
 
@@ -44,6 +56,30 @@ namespace RtfMacroStudioViewModel.ViewModel
             }
         }
 
-        
+        public void AddFormatMacroTask(EFormatType formatType)
+        {
+            CurrentTaskList.Add(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = formatType,
+            });
+        }
+
+        public void RemoveTaskAt(int taskIndex)
+        {
+            try
+            {
+                CurrentTaskList.RemoveAt(taskIndex);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Console.WriteLine($"Cannot remove task with index of {taskIndex} - {ex.Message}");
+            }
+        }
+
+        public void ClearAllTasks()
+        {
+            CurrentTaskList.Clear();
+        }
     }
 }

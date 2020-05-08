@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
+﻿using System.Windows.Documents;
+using System.Windows.Input;
+using static RtfMacroStudioViewModel.Enums.Enums;
 
 namespace RtfMacroStudioViewModel.Models
 {
     public class MacroTask
     {
-        //will be enum later
-        public int MacroTaskType { get; set; }
+        public EMacroTaskType MacroTaskType { get; set; }
         
         public Paragraph Line { get; set; }
+
+        public Key KeyStroke { get; set; }
+        public EFormatType FormatType { get; set; }
     }
 }

@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Enums\Enums.cs" />
     <Compile Include="Models\MacroTask.cs" />
     <Compile Include="ViewModel\StudioViewModel.cs" />
     <Page Include="MainWindow.xaml">
