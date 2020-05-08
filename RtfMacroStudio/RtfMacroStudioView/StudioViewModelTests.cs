@@ -86,6 +86,34 @@ namespace RtfMacroStudioView
             Assert.That(viewModel.CurrentTaskList.Count == 0);
         }
 
+        [Test]
+        public void CanMoveTask()
+        {
+            GivenSomeBasicTasks();
+
+            viewModel.MoveTask(2, 0);
+
+            Assert.That(viewModel.CurrentTaskList.Count == 3);
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Text);
+            Assert.That(viewModel.CurrentTaskList[1].MacroTaskType == EMacroTaskType.Format);
+            Assert.That(viewModel.CurrentTaskList[2].MacroTaskType == EMacroTaskType.SpecialKey);
+        }
+
+        [TestCase(1, -1)]
+        [TestCase(-1, 0)]
+        [TestCase(6, 8)]
+        public void HandleInvalidMoveInputs(int sourceIndex, int destinationIndex)
+        {
+            GivenSomeBasicTasks();
+
+            viewModel.MoveTask(sourceIndex, destinationIndex);
+
+            Assert.That(viewModel.CurrentTaskList.Count == 3);
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Format);
+            Assert.That(viewModel.CurrentTaskList[1].MacroTaskType == EMacroTaskType.SpecialKey);
+            Assert.That(viewModel.CurrentTaskList[2].MacroTaskType == EMacroTaskType.Text);
+        }
+
         [TestCase(2)]
         [TestCase(10)]
         public void RunMacroUpdatesTheTextBasedOnTask(int numberOfTasksToInsert)

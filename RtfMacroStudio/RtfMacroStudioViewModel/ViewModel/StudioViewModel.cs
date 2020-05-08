@@ -81,5 +81,18 @@ namespace RtfMacroStudioViewModel.ViewModel
         {
             CurrentTaskList.Clear();
         }
+
+        public void MoveTask(int sourceIndex, int destinationIndex)
+        {
+            if (sourceIndex < 0 || sourceIndex >= CurrentTaskList.Count 
+                || destinationIndex < 0 || destinationIndex >= CurrentTaskList.Count)
+            {
+                return;
+            }
+
+            var taskToMove = CurrentTaskList[sourceIndex];
+            CurrentTaskList.RemoveAt(sourceIndex);
+            CurrentTaskList.Insert(destinationIndex, taskToMove);
+        }
     }
 }
