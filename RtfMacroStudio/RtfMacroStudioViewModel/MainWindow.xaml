@@ -1,12 +1,61 @@
-﻿<Window x:Class="RtfMacroStudioViewModel.MainWindow"
+﻿<Window x:Name="RichTextStudioForm" x:Class="RtfMacroStudioViewModel.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
         xmlns:local="clr-namespace:RtfMacroStudioViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="603.324" Width="848.615">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="139*"/>
+            <RowDefinition Height="433*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="179*"/>
+            <ColumnDefinition Width="662*"/>
+        </Grid.ColumnDefinitions>
+        <Ribbon x:Name="RibbonMain" DockPanel.Dock="Top" Margin="0,0,0,5" Grid.ColumnSpan="2">
+            <Ribbon.ApplicationMenu>
+                <RibbonApplicationMenu KeyTip="F">
+                    <RibbonApplicationMenuItem Header="Options"></RibbonApplicationMenuItem>
+                    <RibbonApplicationMenuItem Header="Exit"></RibbonApplicationMenuItem>
+                </RibbonApplicationMenu>
+            </Ribbon.ApplicationMenu>
+            <!-- Ribbon Tab 1 - Home -->
+            <RibbonTab Header="Home" KeyTip="H" Margin="0,0,0,-5">
+                <RibbonGroup x:Name="ClipboardGroup" Header="Clipboard">
+                    <RibbonButton Label="Paste" KeyTip="V"></RibbonButton>
+                    <RibbonButton Label="Cut" KeyTip="X"></RibbonButton>
+                    <RibbonButton Label="Copy" KeyTip="C"></RibbonButton>
+                </RibbonGroup>
+                <RibbonGroup x:Name="FormatGroup" Header="Format">
+                    <RibbonComboBox x:Name="Font" Label="Font"></RibbonComboBox>
+                    <RibbonButton Label="Bold" KeyTip="B"></RibbonButton>
+                    <RibbonButton Label="Italic" KeyTip="I"></RibbonButton>
+                    <RibbonButton Label="Underline" KeyTip="U"></RibbonButton>
+                    <RibbonMenuButton Label="Color"></RibbonMenuButton>
+                </RibbonGroup>
+
+            </RibbonTab>
+            <RibbonTab Header="Macro" KeyTip="M">
+                <RibbonGroup Header="New">
+                    <RibbonButton x:Name="RibbonButtonAddMacroKeystroke" Label="Keystroke" Click="RibbonButtonAddMacroKeystroke_Click"></RibbonButton>
+                    <RibbonMenuButton Label="Special Key"></RibbonMenuButton>
+                    <RibbonButton Label="Format"></RibbonButton>
+                </RibbonGroup>
+            </RibbonTab>
+        </Ribbon>
+
+        <RichTextBox x:Name="RichTextBoxMain" Margin="2,0,0,10" Grid.Row="1" Height="413" VerticalAlignment="Bottom" Grid.Column="1">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="RichTextBox"/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        <StackPanel x:Name="TaskList" Margin="0,0,2,-1" Grid.Row="1"/>
+
     </Grid>
 </Window>

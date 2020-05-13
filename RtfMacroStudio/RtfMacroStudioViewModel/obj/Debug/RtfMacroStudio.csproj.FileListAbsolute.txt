@@ -13,3 +13,7 @@ C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\R
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudio.csproj.CoreCompileInputs.cache
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel.exe
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel.pdb
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\Controls\MacroTaskControl.g.cs
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\Controls\MacroTaskControl.baml
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\Splash\SplashScreen.g.cs
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\Splash\SplashScreen.baml

@@ -11,12 +11,17 @@ namespace RtfMacroStudioView
     public class StudioViewModelTests
     {
         StudioViewModel viewModel;
+        string propertyChangedText;
 
         [SetUp]
         public void Setup()
         {
             viewModel = new StudioViewModel();
+            viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            propertyChangedText = string.Empty;
         }
+
+       
 
         [Test]
         public void CanCreateViewModel()
@@ -29,6 +34,7 @@ namespace RtfMacroStudioView
         {
             viewModel.AddTextInputMacroTask("text to add");
 
+            Assert.That(propertyChangedText == nameof(viewModel.CurrentTaskList));
             Assert.That(viewModel.CurrentTaskList.Count == 1);
             Assert.That(((Run)viewModel.CurrentTaskList[0].Line.Inlines.FirstInline).Text == "text to add");
         }
@@ -39,6 +45,7 @@ namespace RtfMacroStudioView
             viewModel.AddSpecialKeyMacroTask(Key.Home);
             viewModel.AddSpecialKeyMacroTask(Key.RightCtrl);
 
+            Assert.That(propertyChangedText == nameof(viewModel.CurrentTaskList));
             Assert.That(viewModel.CurrentTaskList.Count == 2);
             Assert.That(viewModel.CurrentTaskList[0].KeyStroke == Key.Home);
             Assert.That(viewModel.CurrentTaskList[1].KeyStroke == Key.RightCtrl);
@@ -49,6 +56,7 @@ namespace RtfMacroStudioView
         {
             viewModel.AddFormatMacroTask(EFormatType.Bold);
 
+            Assert.That(propertyChangedText == nameof(viewModel.CurrentTaskList));
             Assert.That(viewModel.CurrentTaskList.Count == 1);
             Assert.That(viewModel.CurrentTaskList[0].FormatType == EFormatType.Bold);
         }
@@ -130,13 +138,24 @@ namespace RtfMacroStudioView
             Assert.That(viewModel.CurrentRichText.Blocks.Count == numberOfTasksToInsert);
         }
 
+        [Test]
+        public void CanGetTextFromMacroTask()
+        {
+            viewModel.AddTextInputMacroTask("This is a task");
 
+            Assert.That(StudioViewModel.GetTextFromMacroTask(viewModel.CurrentTaskList[0]) == "This is a task");
+        }
 
         private void GivenSomeBasicTasks()
         {
             viewModel.AddFormatMacroTask(EFormatType.Italic);
             viewModel.AddSpecialKeyMacroTask(Key.LeftCtrl);
             viewModel.AddTextInputMacroTask("Hello world!");
+        }
+
+        private void ViewModel_PropertyChanged(string propertyName)
+        {
+            propertyChangedText = propertyName;
         }
     }
 }

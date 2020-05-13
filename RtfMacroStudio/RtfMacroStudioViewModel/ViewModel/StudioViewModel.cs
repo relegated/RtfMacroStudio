@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using static RtfMacroStudioViewModel.Enums.Enums;
@@ -17,25 +18,13 @@ namespace RtfMacroStudioViewModel.ViewModel
         public FlowDocument CurrentRichText { get; set; } = new FlowDocument();
         public List<MacroTask> CurrentTaskList { get; set; } = new List<MacroTask>();
 
-        public void AddTextInputMacroTask(string textInput)
-        {
-            Paragraph paragraph = new Paragraph();
-            paragraph.Inlines.Add(new Run(textInput));
-            CurrentTaskList.Add(new MacroTask()
-            {
-                Line = paragraph,
-                MacroTaskType = EMacroTaskType.Text
-            });
-        }
+        public delegate void NotifyPropertyChanged(string PropertyName);
 
-        public void AddSpecialKeyMacroTask(Key specialKey)
-        {
-            CurrentTaskList.Add(new MacroTask()
-            {
-                MacroTaskType = EMacroTaskType.SpecialKey,
-                KeyStroke = specialKey,
-            });
-        }
+        public event NotifyPropertyChanged PropertyChanged;
+
+
+
+        
 
         #endregion
 
@@ -55,7 +44,27 @@ namespace RtfMacroStudioViewModel.ViewModel
                 CurrentRichText.Blocks.Add(task.Line);
             }
         }
+        public void AddTextInputMacroTask(string textInput)
+        {
+            Paragraph paragraph = new Paragraph();
+            paragraph.Inlines.Add(new Run(textInput));
+            CurrentTaskList.Add(new MacroTask()
+            {
+                Line = paragraph,
+                MacroTaskType = EMacroTaskType.Text
+            });
+            RaisePropertyChangedEvent(nameof(CurrentTaskList));
+        }
 
+        public void AddSpecialKeyMacroTask(Key specialKey)
+        {
+            CurrentTaskList.Add(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.SpecialKey,
+                KeyStroke = specialKey,
+            });
+            RaisePropertyChangedEvent(nameof(CurrentTaskList));
+        }
         public void AddFormatMacroTask(EFormatType formatType)
         {
             CurrentTaskList.Add(new MacroTask()
@@ -63,6 +72,7 @@ namespace RtfMacroStudioViewModel.ViewModel
                 MacroTaskType = EMacroTaskType.Format,
                 FormatType = formatType,
             });
+            RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 
         public void RemoveTaskAt(int taskIndex)
@@ -93,6 +103,26 @@ namespace RtfMacroStudioViewModel.ViewModel
             var taskToMove = CurrentTaskList[sourceIndex];
             CurrentTaskList.RemoveAt(sourceIndex);
             CurrentTaskList.Insert(destinationIndex, taskToMove);
+        }
+
+        private void RaisePropertyChangedEvent(string propertyName)
+        {
+            PropertyChanged?.Invoke(propertyName);
+        }
+
+        public static string GetTextFromMacroTask(MacroTask macroTask)
+        {
+            string returnValue = string.Empty;
+
+            foreach (var item in macroTask.Line.Inlines)
+            {
+                if (item is Run)
+                {
+                    returnValue += ((Run)item).Text;
+                }
+            }
+
+            return returnValue;
         }
     }
 }
