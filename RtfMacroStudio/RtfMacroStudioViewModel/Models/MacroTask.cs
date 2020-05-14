@@ -10,7 +10,7 @@ namespace RtfMacroStudioViewModel.Models
         
         public Paragraph Line { get; set; }
 
-        public Key KeyStroke { get; set; }
+        public ESpecialKey KeyStroke { get; set; }
         public EFormatType FormatType { get; set; }
     }
 }

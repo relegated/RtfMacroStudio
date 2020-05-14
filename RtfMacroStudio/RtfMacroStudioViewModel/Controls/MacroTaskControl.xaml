@@ -8,7 +8,7 @@
              d:DesignHeight="85" d:DesignWidth="200">
     <Grid>
         <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="85" Stroke="Black" VerticalAlignment="Top" Width="200"/>
-        <TextBlock x:Name="TaskTextTitle" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="20" Width="180"/>
+        <TextBlock x:Name="TaskTextTitle" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="20" Width="180" FontStyle="Italic"/>
         <TextBlock x:Name="TaskText" HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="45" Width="180"/>
 
     </Grid>

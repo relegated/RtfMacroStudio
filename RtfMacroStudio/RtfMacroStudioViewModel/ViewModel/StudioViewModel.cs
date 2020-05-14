@@ -18,6 +18,8 @@ namespace RtfMacroStudioViewModel.ViewModel
         public FlowDocument CurrentRichText { get; set; } = new FlowDocument();
         public List<MacroTask> CurrentTaskList { get; set; } = new List<MacroTask>();
 
+        public List<ESpecialKey> SupportedSpecialKeys { get; set; } = new List<ESpecialKey>();
+
         public delegate void NotifyPropertyChanged(string PropertyName);
 
         public event NotifyPropertyChanged PropertyChanged;
@@ -32,7 +34,7 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public StudioViewModel()
         {
-
+            SupportedSpecialKeys = Enum.GetValues(typeof(ESpecialKey)).Cast<ESpecialKey>().ToList();
         }
 
         #endregion
@@ -56,7 +58,7 @@ namespace RtfMacroStudioViewModel.ViewModel
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 
-        public void AddSpecialKeyMacroTask(Key specialKey)
+        public void AddSpecialKeyMacroTask(ESpecialKey specialKey)
         {
             CurrentTaskList.Add(new MacroTask()
             {

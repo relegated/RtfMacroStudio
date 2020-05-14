@@ -42,13 +42,13 @@ namespace RtfMacroStudioView
         [Test]
         public void CanAddSpecialCharacterMacroTask()
         {
-            viewModel.AddSpecialKeyMacroTask(Key.Home);
-            viewModel.AddSpecialKeyMacroTask(Key.RightCtrl);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Home);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlRightArrow);
 
             Assert.That(propertyChangedText == nameof(viewModel.CurrentTaskList));
             Assert.That(viewModel.CurrentTaskList.Count == 2);
-            Assert.That(viewModel.CurrentTaskList[0].KeyStroke == Key.Home);
-            Assert.That(viewModel.CurrentTaskList[1].KeyStroke == Key.RightCtrl);
+            Assert.That(viewModel.CurrentTaskList[0].KeyStroke == ESpecialKey.Home);
+            Assert.That(viewModel.CurrentTaskList[1].KeyStroke == ESpecialKey.ControlRightArrow);
         }
 
         [Test]
@@ -146,10 +146,16 @@ namespace RtfMacroStudioView
             Assert.That(StudioViewModel.GetTextFromMacroTask(viewModel.CurrentTaskList[0]) == "This is a task");
         }
 
+        [Test]
+        public void SupportedSpecialKeysArePopulated()
+        {
+            Assert.That(viewModel.SupportedSpecialKeys.Count == 21);
+        }
+
         private void GivenSomeBasicTasks()
         {
             viewModel.AddFormatMacroTask(EFormatType.Italic);
-            viewModel.AddSpecialKeyMacroTask(Key.LeftCtrl);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlRightArrow);
             viewModel.AddTextInputMacroTask("Hello world!");
         }
 

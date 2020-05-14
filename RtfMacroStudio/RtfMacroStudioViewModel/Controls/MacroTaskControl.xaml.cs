@@ -1,4 +1,5 @@
-﻿using RtfMacroStudioViewModel.Models;
+﻿using RtfMacroStudioViewModel.Enums;
+using RtfMacroStudioViewModel.Models;
 using RtfMacroStudioViewModel.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace RtfMacroStudioViewModel.Controls
         {
             InitializeComponent();
 
-            TaskTextTitle.Text = macroTask.MacroTaskType.ToString();
+            TaskTextTitle.Text = RtfEnumStringRetriever.GetFriendlyString(macroTask.MacroTaskType);
 
             switch (macroTask.MacroTaskType)
             {

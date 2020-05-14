@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Windows.Controls.Ribbon;
 using RtfMacroStudioViewModel.Controls;
 using static RtfMacroStudioViewModel.Enums.Enums;
+using RtfMacroStudioViewModel.Enums;
 
 namespace RtfMacroStudioViewModel
 {
@@ -37,10 +38,37 @@ namespace RtfMacroStudioViewModel
         {
             this.viewModel = viewModel;
 
+            CreateSpecialKeyMenuItems();
+
             RichTextBoxMain.Document = viewModel.CurrentRichText;
             RichTextBoxMain.TextChanged += RichTextBoxMain_TextChanged;
 
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+
+        private void CreateSpecialKeyMenuItems()
+        {
+            foreach (var specialKey in viewModel.SupportedSpecialKeys)
+            {
+                RibbonMenuItem ribbonMenuItem = new RibbonMenuItem() 
+                { 
+                    Header = specialKey.GetFriendlyString(),
+                    Name = specialKey.ToString(),
+                };
+
+                ribbonMenuItem.Click += RibbonMenuItemAddSpecialKeyMacroTask_Click;
+
+                RibbonMenuButtonSpecialKeys.Items.Add(ribbonMenuItem);
+            }
+        }
+
+        private void RibbonMenuItemAddSpecialKeyMacroTask_Click(object sender, RoutedEventArgs e)
+        {
+            ESpecialKey specialKey;
+            if (Enum.TryParse<ESpecialKey>(((RibbonMenuItem)sender).Name, out specialKey))
+            {
+                viewModel.AddSpecialKeyMacroTask(specialKey);
+            }
         }
 
         private void ViewModel_PropertyChanged(string PropertyName)
@@ -69,5 +97,7 @@ namespace RtfMacroStudioViewModel
         {
             viewModel.AddTextInputMacroTask("Demonstration Text");
         }
+
+
     }
 }
