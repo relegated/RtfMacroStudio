@@ -33,7 +33,7 @@ namespace RtfMacroStudioViewModel.Controls
             switch (macroTask.MacroTaskType)
             {
                 case EMacroTaskType.SpecialKey:
-                    TaskText.Text = macroTask.KeyStroke.ToString();
+                    TaskText.Text = macroTask.SpecialKey.ToString();
                     break;
                 case EMacroTaskType.Format:
                     TaskText.Text = macroTask.FormatType.ToString();

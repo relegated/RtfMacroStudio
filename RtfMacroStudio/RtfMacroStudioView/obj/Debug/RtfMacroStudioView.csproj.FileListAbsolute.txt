@@ -8,7 +8,6 @@ C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\R
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioView\bin\Debug\RtfMacroStudioViewModel.exe
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioView\bin\Debug\RtfMacroStudioViewModel.pdb
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioView\bin\Debug\RtfMacroStudioViewModel.exe.config
-C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioView\bin\Debug\nunit.framework.pdb
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioView\bin\Debug\nunit.framework.xml
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioView\obj\Debug\RtfMacroStudioView.csprojAssemblyReference.cache
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioView\obj\Debug\RtfMacroStudioView.csproj.CoreCompileInputs.cache

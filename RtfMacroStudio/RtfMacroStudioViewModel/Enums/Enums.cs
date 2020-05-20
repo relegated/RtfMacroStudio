@@ -35,6 +35,12 @@ namespace RtfMacroStudioViewModel.Enums
             DownArrow,
             Home,
             End,
+            ControlHome,
+            ControlEnd,
+            ShiftHome,
+            ShiftEnd,
+            ControlShiftHome,
+            ControlShiftEnd,
             Delete,
             Backspace,
             Enter,
@@ -44,8 +50,6 @@ namespace RtfMacroStudioViewModel.Enums
             ShiftDownArrow,
             ControlLeftArrow,
             ControlRightArrow,
-            ControlUpArrow,
-            ControlDownArrow,
             ControlShiftLeftArrow,
             ControlShiftRightArrow,
             ControlShiftUpArrow,
@@ -88,6 +92,18 @@ namespace RtfMacroStudioViewModel.Enums
                     return "Home";
                 case ESpecialKey.End:
                     return "End";
+                case ESpecialKey.ControlHome:
+                    return "Control + Home";
+                case ESpecialKey.ControlEnd:
+                    return "Control + End";
+                case ESpecialKey.ShiftHome:
+                    return "Shift + Home";
+                case ESpecialKey.ShiftEnd:
+                    return "Shift + End";
+                case ESpecialKey.ControlShiftHome:
+                    return "Control + Shift + Home";
+                case ESpecialKey.ControlShiftEnd:
+                    return "Control + Shift + End";
                 case ESpecialKey.Delete:
                     return "Delete";
                 case ESpecialKey.Backspace:
@@ -106,10 +122,6 @@ namespace RtfMacroStudioViewModel.Enums
                     return "Control + Left Arrow";
                 case ESpecialKey.ControlRightArrow:
                     return "Control + Right Arrow";
-                case ESpecialKey.ControlUpArrow:
-                    return "Control + Up Arrow";
-                case ESpecialKey.ControlDownArrow:
-                    return "Control + Down Arrow";
                 case ESpecialKey.ControlShiftLeftArrow:
                     return "Control + Shift + Left Arrow";
                 case ESpecialKey.ControlShiftRightArrow:

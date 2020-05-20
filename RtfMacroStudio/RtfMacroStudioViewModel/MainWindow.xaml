@@ -19,8 +19,7 @@
         <Ribbon x:Name="RibbonMain" DockPanel.Dock="Top" Margin="0,0,0,5" Grid.ColumnSpan="2" Grid.Row="0">
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu KeyTip="F">
-                    <RibbonApplicationMenuItem Header="Options"></RibbonApplicationMenuItem>
-                    <RibbonApplicationMenuItem Header="Exit"></RibbonApplicationMenuItem>
+                    <RibbonApplicationMenuItem x:Name="Exit" Header="Exit"></RibbonApplicationMenuItem>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
             <!-- Ribbon Tab 1 - Home -->
@@ -48,14 +47,14 @@
             </RibbonTab>
         </Ribbon>
 
-        <RichTextBox x:Name="RichTextBoxMain" Margin="2,10,0,10" Grid.Column="1" Grid.Row="1">
+        <RichTextBox x:Name="RichTextBoxMain" Margin="8,8,8,8" Grid.Column="1" Grid.Row="1">
             <FlowDocument>
                 <Paragraph>
                     <Run Text="RichTextBox"/>
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,8,8,8" Grid.Row="1">
             <StackPanel x:Name="TaskList"/>
         </ScrollViewer>
         
