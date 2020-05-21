@@ -1,7 +1,10 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
+using RtfMacroStudioViewModel.Interfaces;
 using RtfMacroStudioViewModel.ViewModel;
 using System;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using static RtfMacroStudioViewModel.Enums.Enums;
@@ -13,11 +16,13 @@ namespace RtfMacroStudioView
     {
         StudioViewModel viewModel;
         string propertyChangedText;
+        Mock<IEditingCommandHelper> mockEditingCommandHelper;
 
         [SetUp]
         public void Setup()
         {
-            viewModel = new StudioViewModel();
+            mockEditingCommandHelper = new Mock<IEditingCommandHelper>();
+            viewModel = new StudioViewModel(mockEditingCommandHelper.Object);
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
             propertyChangedText = string.Empty;
         }
@@ -154,7 +159,7 @@ namespace RtfMacroStudioView
         [Test]
         public void SupportedSpecialKeysArePopulated()
         {
-            Assert.That(viewModel.SupportedSpecialKeys.Count == 25);
+            Assert.That(viewModel.SupportedSpecialKeys.Count == 23);
         }
 
         [Test]
@@ -165,97 +170,283 @@ namespace RtfMacroStudioView
             Assert.That(viewModel.CaretPosition.CompareTo(viewModel.CurrentRichText.ContentEnd) == 0);
         }
 
-        [TestCase(ESpecialKey.LeftArrow)]
-        [TestCase(ESpecialKey.RightArrow)]
-        [TestCase(ESpecialKey.ShiftLeftArrow)]
-        [TestCase(ESpecialKey.ShiftRightArrow)]
-        public void LeftRightSingleCharacterNavigationKeysChangeCaretLocation(ESpecialKey specialKey)
+        [Test]
+        public void CanMoveRightByCharacter()
         {
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddSpecialKeyMacroTask(specialKey);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.RightArrow);
             viewModel.RunMacro();
 
-            if (specialKey == ESpecialKey.LeftArrow || specialKey == ESpecialKey.ShiftLeftArrow)
-            {
-                Assert.That(viewModel.CaretPosition.CompareTo(startPosition.GetPositionAtOffset(-1)) == 0);
-            }
-            else
-            {
-                Assert.That(viewModel.CaretPosition.CompareTo(startPosition.GetPositionAtOffset(1)) == 0);
-            }
+            mockEditingCommandHelper.Verify(m => m.MoveRightByCharacter(It.IsAny<RichTextBox>()), Times.Once);
         }
 
-        [TestCase(ESpecialKey.UpArrow)]
-        [TestCase(ESpecialKey.DownArrow)]
-        [TestCase(ESpecialKey.ShiftUpArrow)]
-        [TestCase(ESpecialKey.ShiftDownArrow)]
-        public void UpDownLineNavigationChangesCaretLocation(ESpecialKey specialKey)
+        [Test]
+        public void CanMoveLeftByCharacter()
         {
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddSpecialKeyMacroTask(specialKey);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.LeftArrow);
             viewModel.RunMacro();
 
-            if (specialKey == ESpecialKey.UpArrow || specialKey == ESpecialKey.ShiftUpArrow)
-            {
-                Assert.That(viewModel.CaretPosition.CompareTo(
-                    viewModel.CurrentRichText.Blocks.ElementAt(3).ContentStart.GetPositionAtOffset(14)) == 0);
-            }
-            else
-            {
-                Assert.That(viewModel.CaretPosition.CompareTo(
-                    viewModel.CurrentRichText.Blocks.ElementAt(5).ContentStart.GetPositionAtOffset(14)) == 0);
-            }
+            mockEditingCommandHelper.Verify(m => m.MoveLeftByCharacter(It.IsAny<RichTextBox>()), Times.Once);
         }
 
-        [TestCase(ESpecialKey.Home)]
-        [TestCase(ESpecialKey.End)]
-        [TestCase(ESpecialKey.ShiftHome)]
-        [TestCase(ESpecialKey.ShiftEnd)]
-        public void HomeEndNavigationChangesCaretLocation(ESpecialKey specialKey)
+        [Test]
+        public void CanSelectRightByCharacter()
         {
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddSpecialKeyMacroTask(specialKey);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ShiftRightArrow);
             viewModel.RunMacro();
 
-            if (specialKey == ESpecialKey.Home || specialKey == ESpecialKey.ShiftHome)
-            {
-                Assert.That(viewModel.CaretPosition.CompareTo(
-                    viewModel.CurrentRichText.Blocks.ElementAt(4).ContentStart) == 0);
-            }
-            else
-            {
-                Assert.That(viewModel.CaretPosition.CompareTo(
-                    viewModel.CurrentRichText.Blocks.ElementAt(4).ContentEnd) == 0);
-            }
+            mockEditingCommandHelper.Verify(m => m.SelectRightByCharacter(It.IsAny<RichTextBox>()), Times.Once);
         }
 
-        [TestCase(ESpecialKey.ControlLeftArrow)]
-        [TestCase(ESpecialKey.ControlRightArrow)]
-        public void ControlLeftRightArrowsChangeCaretLocationToNextOrPreviousWord(ESpecialKey specialKey)
+        [Test]
+        public void CanSelectLeftByCharacter()
         {
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddSpecialKeyMacroTask(specialKey);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ShiftLeftArrow);
             viewModel.RunMacro();
 
-            if (specialKey == ESpecialKey.ControlLeftArrow)
-            {
-                Assert.That(viewModel.CaretPosition.CompareTo(
-                    viewModel.CurrentRichText.Blocks.ElementAt(4).ContentStart.GetPositionAtOffset(8)) == 0);
-            }
-            else
-            {
-                Assert.That(viewModel.CaretPosition.CompareTo(
-                    viewModel.CurrentRichText.Blocks.ElementAt(4).ContentStart.GetPositionAtOffset(16)) == 0);
-            }
+            mockEditingCommandHelper.Verify(m => m.SelectLeftByCharacter(It.IsAny<RichTextBox>()), Times.Once);
         }
+
+        [Test]
+        public void CanMoveRightByWord()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlRightArrow);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.MoveRightByWord(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanMoveLeftByWord()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlLeftArrow);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.MoveLeftByWord(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanSelectRightByWord()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlShiftRightArrow);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.SelectRightByWord(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanSelectLeftByWord()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlShiftLeftArrow);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.SelectLeftByWord(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanMoveUpByLine()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.UpArrow);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.MoveUpByLine(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanMoveDownByLine()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.DownArrow);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.MoveDownByLine(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanSelectUpByLine()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ShiftUpArrow);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.SelectUpByLine(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanSelectDownByLine()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ShiftDownArrow);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.SelectDownByLine(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanMoveToLineStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Home);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.MoveToLineStart(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanMoveToLineEnd()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.End);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.MoveToLineEnd(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanSelectToLineStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ShiftHome);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.SelectToLineStart(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanSelectToLineEnd()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ShiftEnd);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.SelectToLineEnd(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanMoveToDocumentStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlHome);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.MoveToDocumentStart(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanMoveToDocumentEnd()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlEnd);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.MoveToDocumentEnd(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanSelectToDocumentStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlShiftHome);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.SelectToDocumentStart(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanSelectToDocumentEnd()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlShiftEnd);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.SelectToDocumentEnd(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanEnter()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Enter);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.EnterParagraphBreak(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanBackspace()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Backspace);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.Backspace(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanDelete()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Delete);
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.Delete(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+
 
         private TextPointer GivenCaratPositionIsInTheMiddleOfTheDocument()
         {

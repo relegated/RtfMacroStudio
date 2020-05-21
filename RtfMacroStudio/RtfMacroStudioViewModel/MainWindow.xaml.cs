@@ -98,6 +98,11 @@ namespace RtfMacroStudioViewModel
             viewModel.AddTextInputMacroTask("Demonstration Text");
         }
 
-
+        private void RichTextBoxMain_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var position = RichTextBoxMain.CaretPosition;
+            EditingCommands.MoveToLineStart.Execute(null, RichTextBoxMain);
+            MessageBox.Show($"Difference: {position.GetOffsetToPosition(RichTextBoxMain.CaretPosition)}");
+        }
     }
 }

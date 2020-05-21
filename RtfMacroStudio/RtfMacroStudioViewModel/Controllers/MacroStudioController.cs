@@ -1,4 +1,5 @@
-﻿using RtfMacroStudioViewModel.ViewModel;
+﻿using RtfMacroStudioViewModel.Helpers;
+using RtfMacroStudioViewModel.ViewModel;
 using System.Windows;
 
 namespace RtfMacroStudioViewModel.Controllers
@@ -8,7 +9,7 @@ namespace RtfMacroStudioViewModel.Controllers
 
         public void StartMacroStudio()
         {
-            StudioViewModel viewModel = new StudioViewModel();
+            StudioViewModel viewModel = new StudioViewModel(new EditingCommandHelper());
             Window mainWindow = new MainWindow(viewModel);
             mainWindow.Show();
         }

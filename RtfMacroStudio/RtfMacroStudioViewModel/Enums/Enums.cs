@@ -52,8 +52,6 @@ namespace RtfMacroStudioViewModel.Enums
             ControlRightArrow,
             ControlShiftLeftArrow,
             ControlShiftRightArrow,
-            ControlShiftUpArrow,
-            ControlShiftDownArrow,
         }
     }
 
@@ -126,10 +124,6 @@ namespace RtfMacroStudioViewModel.Enums
                     return "Control + Shift + Left Arrow";
                 case ESpecialKey.ControlShiftRightArrow:
                     return "Control + Shift + Right Arrow";
-                case ESpecialKey.ControlShiftUpArrow:
-                    return "Control + Shift + Up Arrow";
-                case ESpecialKey.ControlShiftDownArrow:
-                    return "Control + Shift + Down Arrow";
                 default:
                     return string.Empty;
             }

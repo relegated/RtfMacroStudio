@@ -47,7 +47,7 @@
             </RibbonTab>
         </Ribbon>
 
-        <RichTextBox x:Name="RichTextBoxMain" Margin="8,8,8,8" Grid.Column="1" Grid.Row="1">
+        <RichTextBox x:Name="RichTextBoxMain" Margin="8,8,8,8" Grid.Column="1" Grid.Row="1" LostFocus="RichTextBoxMain_LostFocus">
             <FlowDocument>
                 <Paragraph>
                     <Run Text="RichTextBox"/>

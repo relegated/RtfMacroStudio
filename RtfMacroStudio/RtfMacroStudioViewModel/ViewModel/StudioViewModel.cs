@@ -1,8 +1,10 @@
-﻿using RtfMacroStudioViewModel.Models;
+﻿using RtfMacroStudioViewModel.Interfaces;
+using RtfMacroStudioViewModel.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,13 +17,6 @@ namespace RtfMacroStudioViewModel.ViewModel
 {
     public class StudioViewModel
     {
-        #region Fields
-        
-        //RichTextBox is a control, but it provides logical methods to move and select in a document
-        private RichTextBox richTextBox;
-        Dispatcher dispatcher;
-        
-        #endregion
 
         #region Properties
 
@@ -35,20 +30,21 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public event NotifyPropertyChanged PropertyChanged;
 
-        
+        public RichTextBox RichTextBoxControl { get; set; } = new RichTextBox();
+        public IEditingCommandHelper EditingCommandHelper { get; }
 
-        
+
+
 
         #endregion
 
         #region Constructor
 
-        public StudioViewModel()
+        public StudioViewModel(IEditingCommandHelper editingCommandHelper)
         {
             SupportedSpecialKeys = Enum.GetValues(typeof(ESpecialKey)).Cast<ESpecialKey>().ToList();
             CaretPosition = CurrentRichText.ContentStart;
-            dispatcher = Dispatcher.CurrentDispatcher;
-            dispatcher.Invoke(() => richTextBox = new RichTextBox());
+            EditingCommandHelper = editingCommandHelper;
         }
 
         #endregion
@@ -70,110 +66,111 @@ namespace RtfMacroStudioViewModel.ViewModel
                     default:
                         break;
                 }
-
-                
             }
         }
 
         private void ProcessSpecialKey(ESpecialKey specialKey)
         {
-            richTextBox.Document = CurrentRichText;
-            richTextBox.CaretPosition = CaretPosition;
-            
+            RichTextBoxControl.Document = CurrentRichText;
+            RichTextBoxControl.CaretPosition = CaretPosition;
+
             switch (specialKey)
             {
                 case ESpecialKey.LeftArrow:
-                    CaretPosition = CaretPosition.GetPositionAtOffset(-1);
+                    EditingCommandHelper.MoveLeftByCharacter(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.RightArrow:
-                    CaretPosition = CaretPosition.GetPositionAtOffset(1);
+                    EditingCommandHelper.MoveRightByCharacter(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.UpArrow:
-                    NavigateByLineIndexOffset(-1);
+                    EditingCommandHelper.MoveUpByLine(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.DownArrow:
-                    NavigateByLineIndexOffset(1);
+                    EditingCommandHelper.MoveDownByLine(RichTextBoxControl);
+                    EditingCommands.MoveDownByLine.Execute(null, RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.Home:
-                    CaretPosition = CurrentRichText.Blocks.ElementAt(GetCurrentBlockIndex()).ContentStart;
+                    EditingCommandHelper.MoveToLineStart(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.End:
-                    CaretPosition = CurrentRichText.Blocks.ElementAt(GetCurrentBlockIndex()).ContentEnd;
+                    EditingCommandHelper.MoveToLineEnd(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ShiftHome:
-                    CaretPosition = CurrentRichText.Blocks.ElementAt(GetCurrentBlockIndex()).ContentStart;
+                    EditingCommandHelper.SelectToLineStart(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ShiftEnd:
-                    CaretPosition = CurrentRichText.Blocks.ElementAt(GetCurrentBlockIndex()).ContentEnd;
+                    EditingCommandHelper.SelectToLineEnd(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    break;
+                case ESpecialKey.ControlHome:
+                    EditingCommandHelper.MoveToDocumentStart(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    break;
+                case ESpecialKey.ControlEnd:
+                    EditingCommandHelper.MoveToDocumentEnd(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    break;
+                case ESpecialKey.ControlShiftHome:
+                    EditingCommandHelper.SelectToDocumentStart(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    break;
+                case ESpecialKey.ControlShiftEnd:
+                    EditingCommandHelper.SelectToDocumentEnd(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.Delete:
+                    EditingCommandHelper.Delete(RichTextBoxControl);
                     break;
                 case ESpecialKey.Backspace:
+                    EditingCommandHelper.Backspace(RichTextBoxControl);
                     break;
                 case ESpecialKey.Enter:
+                    EditingCommandHelper.EnterParagraphBreak(RichTextBoxControl);
                     break;
                 case ESpecialKey.ShiftLeftArrow:
-                    CaretPosition = CaretPosition.GetPositionAtOffset(-1);
+                    EditingCommandHelper.SelectLeftByCharacter(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ShiftRightArrow:
-                    CaretPosition = CaretPosition.GetPositionAtOffset(1);
+                    EditingCommandHelper.SelectRightByCharacter(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ShiftUpArrow:
-                    NavigateByLineIndexOffset(-1);
+                    EditingCommandHelper.SelectUpByLine(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ShiftDownArrow:
-                    NavigateByLineIndexOffset(1);
+                    EditingCommandHelper.SelectDownByLine(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ControlLeftArrow:
-                    EditingCommands.MoveLeftByWord.Execute(null, richTextBox);
-                    CaretPosition = richTextBox.CaretPosition;
+                    EditingCommandHelper.MoveLeftByWord(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ControlRightArrow:
-                    EditingCommands.MoveRightByWord.Execute(null, richTextBox);
-                    CaretPosition = richTextBox.CaretPosition;
+                    EditingCommandHelper.MoveRightByWord(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ControlShiftLeftArrow:
+                    EditingCommandHelper.SelectLeftByWord(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 case ESpecialKey.ControlShiftRightArrow:
-                    break;
-                case ESpecialKey.ControlShiftUpArrow:
-                    break;
-                case ESpecialKey.ControlShiftDownArrow:
+                    EditingCommandHelper.SelectRightByWord(RichTextBoxControl);
+                    CaretPosition = RichTextBoxControl.CaretPosition;
                     break;
                 default:
                     break;
             }
         }
 
-        private void NavigateByLineIndexOffset(int lineIndexOffset)
-        {
-            var currentBlockIndex = GetCurrentBlockIndex();
-            var offset = GetCurrentCaretOffset(currentBlockIndex);
-            CaretPosition = CurrentRichText.Blocks.ElementAt(currentBlockIndex + lineIndexOffset).ContentStart.GetPositionAtOffset(offset);
-        }
-
-        private int GetCurrentCaretOffset(int currentBlockIndex)
-        {
-            var currentBlock = CurrentRichText.Blocks.ElementAt(currentBlockIndex);
-            return currentBlock.ContentStart.GetOffsetToPosition(CaretPosition);
-        }
-
-        private int GetCurrentBlockIndex()
-        {
-            for (int i = 0; i < CurrentRichText.Blocks.Count; i++)
-            {
-                var blockStart = CurrentRichText.Blocks.ElementAt(i).ContentStart;
-                var blockEnd = CurrentRichText.Blocks.ElementAt(i).ContentEnd;
-                if (
-                    (blockStart.CompareTo(CaretPosition) == -1 && blockEnd.CompareTo(CaretPosition) == 1) ||
-                    (blockStart.CompareTo(CaretPosition) == 0 || blockEnd.CompareTo(CaretPosition) == 0))
-                {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
 
         private void ProcessText(Paragraph line)
         {
