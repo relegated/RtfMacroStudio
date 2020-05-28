@@ -1,12 +1,16 @@
 ﻿using Moq;
 using NUnit.Framework;
+using RtfMacroStudioViewModel.Helpers;
 using RtfMacroStudioViewModel.Interfaces;
+using RtfMacroStudioViewModel.Models;
 using RtfMacroStudioViewModel.ViewModel;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using static RtfMacroStudioViewModel.Enums.Enums;
 
 namespace RtfMacroStudioView
@@ -64,7 +68,10 @@ namespace RtfMacroStudioView
         [Test]
         public void CanAddFormatMacroTask()
         {
-            viewModel.AddFormatMacroTask(EFormatType.Bold);
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                FormatType = EFormatType.Bold,
+            });
 
             Assert.That(propertyChangedText == nameof(viewModel.CurrentTaskList));
             Assert.That(viewModel.CurrentTaskList.Count == 1);
@@ -446,7 +453,184 @@ namespace RtfMacroStudioView
             mockEditingCommandHelper.Verify(m => m.Delete(It.IsAny<RichTextBox>()), Times.Once);
         }
 
+        [Test]
+        public void CanAlignCenter()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
+            viewModel.AddFormatMacroTask(new MacroTask() 
+            {
+               MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.AlignCenter,
+            });
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.AlignCenter(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanAlignJustify()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.AlignJustify,
+            });
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.AlignJustify(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanAlignLeft()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.AlignLeft,
+            });
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.AlignLeft(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanAlignRight()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.AlignRight,
+            });
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.AlignRight(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanToggleBold()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.Bold,
+            });
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.ToggleBold(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanToggleItalic()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.Italic,
+            });
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.ToggleItalic(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void CanToggleUnderline()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.Underline,
+            });
+            viewModel.RunMacro();
+
+            mockEditingCommandHelper.Verify(m => m.ToggleUnderline(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [TestCase(255, 0, 0)]
+        [TestCase(0, 255, 0)]
+        [TestCase(0, 0, 255)]
+        public void CanChangeColor(byte r, byte g, byte b)
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.Color,
+                TextColor = Color.FromRgb(r, g, b),
+            });
+            viewModel.RunMacro();
+
+            var brush = (SolidColorBrush)viewModel.RichTextBoxControl.Selection.GetPropertyValue(TextElement.ForegroundProperty);
+            Assert.That(brush.Color == Color.FromRgb(r, g, b));
+        }
+
+        [TestCase("Times New Roman")]
+        [TestCase("Arial")]
+        [TestCase("Courier New")]
+        [TestCase("Georgia")]
+        [TestCase("Tahoma")]
+        public void CanChangeFont(string fontFamilySource)
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.Font,
+                TextFont = new FontFamily(fontFamilySource),
+            });
+            viewModel.RunMacro();
+
+            var theFont = (FontFamily)viewModel.RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontFamilyProperty);
+            Assert.That(theFont.Source == new FontFamily(fontFamilySource).Source);
+        }
+
+        public void CanChangeTextSize()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.TextSize,
+                TextSize = 16,
+            });
+            viewModel.RunMacro();
+
+            var theSize = (double)viewModel.RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontSizeProperty);
+            Assert.That(theSize == 16);
+        }
+
+        private void GivenFirstWordIsSelected()
+        {
+            viewModel.RichTextBoxControl.Document = viewModel.CurrentRichText;
+            EditingCommandHelper editingCommandHelper = new EditingCommandHelper();
+            editingCommandHelper.MoveToDocumentStart(viewModel.RichTextBoxControl);
+            editingCommandHelper.SelectRightByWord(viewModel.RichTextBoxControl);
+        }
 
         private TextPointer GivenCaratPositionIsInTheMiddleOfTheDocument()
         {
@@ -472,7 +656,11 @@ namespace RtfMacroStudioView
 
         private void GivenSomeBasicTasks()
         {
-            viewModel.AddFormatMacroTask(EFormatType.Italic);
+            viewModel.AddFormatMacroTask(new MacroTask()
+            {
+                MacroTaskType = EMacroTaskType.Format,
+                FormatType = EFormatType.Italic,
+            });
             viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlRightArrow);
             viewModel.AddTextInputMacroTask("Hello world!");
         }

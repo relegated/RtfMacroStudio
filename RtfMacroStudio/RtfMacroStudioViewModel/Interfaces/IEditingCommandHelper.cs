@@ -32,6 +32,12 @@ namespace RtfMacroStudioViewModel.Interfaces
         void EnterParagraphBreak(RichTextBox rtb);
         void Delete(RichTextBox rtb);
         void Backspace(RichTextBox rtb);
-
+        void AlignCenter(RichTextBox rtb);
+        void AlignJustify(RichTextBox rtb);
+        void AlignLeft(RichTextBox rtb);
+        void AlignRight(RichTextBox rtb);
+        void ToggleBold(RichTextBox rtb);
+        void ToggleItalic(RichTextBox rtb);
+        void ToggleUnderline(RichTextBox rtb);
     }
 }

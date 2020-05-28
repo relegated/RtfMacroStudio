@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using static RtfMacroStudioViewModel.Enums.Enums;
 
@@ -62,11 +63,74 @@ namespace RtfMacroStudioViewModel.ViewModel
                         ProcessSpecialKey(task.SpecialKey);
                         break;
                     case EMacroTaskType.Format:
+                        ProcessFormat(task);
                         break;
                     default:
                         break;
                 }
             }
+        }
+
+        private void ProcessFormat(MacroTask task)
+        {
+            switch (task.FormatType)
+            {
+                case EFormatType.Bold:
+                    EditingCommandHelper.ToggleBold(RichTextBoxControl);
+                    break;
+                case EFormatType.Italic:
+                    EditingCommandHelper.ToggleItalic(RichTextBoxControl);
+                    break;
+                case EFormatType.Underline:
+                    EditingCommandHelper.ToggleUnderline(RichTextBoxControl);
+                    break;
+                case EFormatType.Font:
+                    SetFont(RichTextBoxControl, task);
+                    break;
+                case EFormatType.Color:
+                    SetColor(RichTextBoxControl, task);
+                    break;
+                case EFormatType.TextSize:
+                    SetSize(RichTextBoxControl, task);
+                    break;
+                case EFormatType.AlignCenter:
+                    EditingCommandHelper.AlignCenter(RichTextBoxControl);
+                    break;
+                case EFormatType.AlignJustify:
+                    EditingCommandHelper.AlignJustify(RichTextBoxControl);
+                    break;
+                case EFormatType.AlignLeft:
+                    EditingCommandHelper.AlignLeft(RichTextBoxControl);
+                    break;
+                case EFormatType.AlignRight:
+                    EditingCommandHelper.AlignRight(RichTextBoxControl);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void SetSize(RichTextBox richTextBoxControl, MacroTask task)
+        {
+            var selection = richTextBoxControl.Selection;
+            selection.ApplyPropertyValue(TextElement.FontSizeProperty, task.TextSize);
+        }
+
+        private void SetFont(RichTextBox richTextBoxControl, MacroTask task)
+        {
+            var selection = richTextBoxControl.Selection;
+            selection.ApplyPropertyValue(TextElement.FontFamilyProperty, task.TextFont);
+        }
+
+        private void SetColor(RichTextBox richTextBoxControl, MacroTask task)
+        {
+            var selection = richTextBoxControl.Selection;
+            selection.ApplyPropertyValue(TextElement.ForegroundProperty, GetBrushFromColor(task.TextColor));
+        }
+
+        private SolidColorBrush GetBrushFromColor(Color textColor)
+        {
+            return new SolidColorBrush(textColor);
         }
 
         private void ProcessSpecialKey(ESpecialKey specialKey)
@@ -199,13 +263,9 @@ namespace RtfMacroStudioViewModel.ViewModel
             });
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
-        public void AddFormatMacroTask(EFormatType formatType)
+        public void AddFormatMacroTask(MacroTask task)
         {
-            CurrentTaskList.Add(new MacroTask()
-            {
-                MacroTaskType = EMacroTaskType.Format,
-                FormatType = formatType,
-            });
+            CurrentTaskList.Add(task);
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 

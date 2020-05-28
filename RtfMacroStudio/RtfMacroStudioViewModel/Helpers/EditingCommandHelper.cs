@@ -11,9 +11,44 @@ namespace RtfMacroStudioViewModel.Helpers
 {
     public class EditingCommandHelper : IEditingCommandHelper
     {
+        public void AlignCenter(RichTextBox rtb)
+        {
+            EditingCommands.AlignCenter.Execute(null, rtb);
+        }
+
+        public void AlignJustify(RichTextBox rtb)
+        {
+            EditingCommands.AlignJustify.Execute(null, rtb);
+        }
+
+        public void AlignLeft(RichTextBox rtb)
+        {
+            EditingCommands.AlignLeft.Execute(null, rtb);
+        }
+
+        public void AlignRight(RichTextBox rtb)
+        {
+            EditingCommands.AlignRight.Execute(null, rtb);
+        }
+
         public void Backspace(RichTextBox rtb)
         {
             EditingCommands.Backspace.Execute(null, rtb);
+        }
+
+        public void ToggleBold(RichTextBox rtb)
+        {
+            EditingCommands.ToggleBold.Execute(null, rtb);
+        }
+
+        public void ToggleItalic(RichTextBox rtb)
+        {
+            EditingCommands.ToggleItalic.Execute(null, rtb);
+        }
+
+        public void ToggleUnderline(RichTextBox rtb)
+        {
+            EditingCommands.ToggleUnderline.Execute(null, rtb);
         }
 
         public void Delete(RichTextBox rtb)

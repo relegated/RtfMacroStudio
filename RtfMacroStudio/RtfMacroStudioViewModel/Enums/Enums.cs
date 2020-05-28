@@ -20,11 +20,15 @@ namespace RtfMacroStudioViewModel.Enums
         public enum EFormatType
         {
             Bold,
-            Unbold,
             Italic,
-            Unitalic,
+            Underline,
             Font,
             Color,
+            TextSize,
+            AlignCenter,
+            AlignJustify,
+            AlignLeft,
+            AlignRight,
         }
 
         public enum ESpecialKey
@@ -57,6 +61,35 @@ namespace RtfMacroStudioViewModel.Enums
 
     public static class RtfEnumStringRetriever
     {
+        public static string GetFriendlyString(this EFormatType type)
+        {
+            switch (type)
+            {
+                case EFormatType.Bold:
+                    return "Bold";
+                case EFormatType.Italic:
+                    return "Italic";
+                case EFormatType.Underline:
+                    return "Underline";
+                case EFormatType.Font:
+                    return "Font";
+                case EFormatType.Color:
+                    return "Color";
+                case EFormatType.TextSize:
+                    return "Size";
+                case EFormatType.AlignCenter:
+                    return "Align Center";
+                case EFormatType.AlignJustify:
+                    return "Align Justify";
+                case EFormatType.AlignLeft:
+                    return "Align Left";
+                case EFormatType.AlignRight:
+                    return "Align Right";
+                default:
+                    return string.Empty;
+            }
+        }
+
         public static string GetFriendlyString(this EMacroTaskType type)
         {
             switch (type)
