@@ -33,7 +33,30 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public RichTextBox RichTextBoxControl { get; set; } = new RichTextBox();
         public IEditingCommandHelper EditingCommandHelper { get; }
+        public List<EFormatType> SupportedFormattingOptions { get; set; } = new List<EFormatType>();
+        public List<string> AvailableFonts { get; set; } = new List<string>();
+        public string SelectedFont { get; set; } = string.Empty;
+        public bool CurrentBoldFlag { get; set; } = false;
+        public bool CurrentItalicFlag { get; set; } = false;
+        public bool CurrentUnderlineFlag { get; set; } = false;
+        public Color CurrentColor { get; set; } = Colors.Black;
 
+        private double currentTextSize;
+        public double CurrentTextSize 
+        {
+            get
+            { return currentTextSize; }
+            set
+            {
+                var newValue = value;
+                if (newValue < 4)
+                    newValue = 4;
+                if (newValue > 128)
+                    newValue = 128;
+                currentTextSize = newValue;
+            }
+        }
+        public List<double> AvailableTextSizes { get; set; } = new List<double>();
 
 
 
@@ -43,9 +66,44 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public StudioViewModel(IEditingCommandHelper editingCommandHelper)
         {
+            GetAvailableFonts();
+            SelectedFont = "Segoe UI";
+            GetAvailableTextSizes();
+            CurrentTextSize = 12;
             SupportedSpecialKeys = Enum.GetValues(typeof(ESpecialKey)).Cast<ESpecialKey>().ToList();
+            SetupSupportedFormatTypes();
             CaretPosition = CurrentRichText.ContentStart;
             EditingCommandHelper = editingCommandHelper;
+        }
+
+        private void GetAvailableFonts()
+        {
+            foreach (var fontFamily in Fonts.SystemFontFamilies)
+            {
+                AvailableFonts.Add(fontFamily.Source);
+            }
+        }
+
+        private void GetAvailableTextSizes()
+        {
+            AvailableTextSizes.Add(10);
+            AvailableTextSizes.Add(12);
+            AvailableTextSizes.Add(14);
+            AvailableTextSizes.Add(16);
+            AvailableTextSizes.Add(18);
+            AvailableTextSizes.Add(20);
+            AvailableTextSizes.Add(24);
+            AvailableTextSizes.Add(28);
+            AvailableTextSizes.Add(32);
+            AvailableTextSizes.Add(64);
+        }
+
+        private void SetupSupportedFormatTypes()
+        {
+            SupportedFormattingOptions = Enum.GetValues(typeof(EFormatType)).Cast<EFormatType>().ToList();
+            SupportedFormattingOptions.Remove(EFormatType.Color);
+            SupportedFormattingOptions.Remove(EFormatType.Font);
+            SupportedFormattingOptions.Remove(EFormatType.TextSize);
         }
 
         #endregion
@@ -131,6 +189,11 @@ namespace RtfMacroStudioViewModel.ViewModel
         private SolidColorBrush GetBrushFromColor(Color textColor)
         {
             return new SolidColorBrush(textColor);
+        }
+
+        private Color GetColorFromBrush(SolidColorBrush brush)
+        {
+            return brush.Color;
         }
 
         private void ProcessSpecialKey(ESpecialKey specialKey)
@@ -317,6 +380,26 @@ namespace RtfMacroStudioViewModel.ViewModel
             }
 
             return returnValue;
+        }
+
+        public void RefreshCurrentFormatting()
+        {
+            //Select one character
+            EditingCommandHelper.SelectRightByCharacter(RichTextBoxControl);
+            var selectionRange = new TextRange(RichTextBoxControl.Selection.Start, RichTextBoxControl.Selection.End);
+
+            //Read formatting
+            CurrentBoldFlag = (FontWeight)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontWeightProperty) == FontWeights.Bold;
+            CurrentItalicFlag = (FontStyle)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontStyleProperty) == FontStyles.Italic;
+            var selectedProperty = (TextDecorationCollection)selectionRange.GetPropertyValue(TextBlock.TextDecorationsProperty);
+            CurrentUnderlineFlag = selectedProperty.Where(x => ((TextDecoration)x).Location == TextDecorationLocation.Underline).ToList().Count > 0;
+            SelectedFont = ((FontFamily)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontFamilyProperty)).Source;
+            var currentBrush = (SolidColorBrush)RichTextBoxControl.Selection.GetPropertyValue(TextElement.ForegroundProperty);
+            CurrentColor = GetColorFromBrush(currentBrush);
+            CurrentTextSize = (double)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontSizeProperty);
+
+            //Undo select
+            EditingCommandHelper.MoveLeftByCharacter(RichTextBoxControl);
         }
     }
 }

@@ -6,15 +6,15 @@
         xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
         xmlns:local="clr-namespace:RtfMacroStudioViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="603.324" Width="848.615" MinWidth="848" MinHeight="603">
+        Title="MainWindow" Height="603.324" Width="900" MinWidth="900" MinHeight="603">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="38*"/>
             <RowDefinition Height="105*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="179*"/>
-            <ColumnDefinition Width="662*"/>
+            <ColumnDefinition Width="58*"/>
+            <ColumnDefinition Width="165*"/>
         </Grid.ColumnDefinitions>
         <Ribbon x:Name="RibbonMain" DockPanel.Dock="Top" Margin="0,0,0,5" Grid.ColumnSpan="2" Grid.Row="0">
             <Ribbon.ApplicationMenu>
@@ -30,7 +30,13 @@
                     <RibbonButton Label="Copy" KeyTip="C"></RibbonButton>
                 </RibbonGroup>
                 <RibbonGroup x:Name="FormatGroup" Header="Format">
-                    <RibbonComboBox x:Name="Font" Label="Font"></RibbonComboBox>
+                    <Label>Font</Label>
+                    <ComboBox x:Name="RibbonComboBoxFont" Width="200" IsReadOnly="True"
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding SelectedFont}"></ComboBox>
+                    <ComboBox x:Name="RibbonComboBoxSize" Width="40" IsReadOnly="False"
+                              ItemsSource="{Binding AvailableTextSizes}"
+                              SelectedItem="{Binding CurrentTextSize}"></ComboBox>
                     <RibbonButton Label="Bold" KeyTip="B"></RibbonButton>
                     <RibbonButton Label="Italic" KeyTip="I"></RibbonButton>
                     <RibbonButton Label="Underline" KeyTip="U"></RibbonButton>
@@ -42,7 +48,7 @@
                 <RibbonGroup Header="New">
                     <RibbonButton x:Name="RibbonButtonAddMacroKeystroke" Label="Keystroke" Click="RibbonButtonAddMacroKeystroke_Click"></RibbonButton>
                     <RibbonMenuButton x:Name="RibbonMenuButtonSpecialKeys" Label="Special Key"></RibbonMenuButton>
-                    <RibbonButton Label="Format"></RibbonButton>
+                    <RibbonMenuButton x:Name="RibbonMenuButtonFormat" Label="Format"></RibbonMenuButton>
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
@@ -57,7 +63,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,8,8,8" Grid.Row="1">
             <StackPanel x:Name="TaskList"/>
         </ScrollViewer>
-        
+
 
     </Grid>
 </Window>

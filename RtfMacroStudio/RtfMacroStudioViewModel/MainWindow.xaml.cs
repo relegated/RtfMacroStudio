@@ -37,13 +37,46 @@ namespace RtfMacroStudioViewModel
         private void Bind(StudioViewModel viewModel)
         {
             this.viewModel = viewModel;
+            DataContext = viewModel;
 
             CreateSpecialKeyMenuItems();
+            CreateFormatMenuItems();
+            
+            
 
             RichTextBoxMain.Document = viewModel.CurrentRichText;
             RichTextBoxMain.TextChanged += RichTextBoxMain_TextChanged;
 
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+
+        private void CreateFormatMenuItems()
+        {
+            foreach (var formatOption in viewModel.SupportedFormattingOptions)
+            {
+                RibbonMenuItem ribbonMenuItem = new RibbonMenuItem()
+                {
+                    Header = formatOption.GetFriendlyString(),
+                    Name = formatOption.ToString(),
+                };
+
+                ribbonMenuItem.Click += RibbonMenuItemAddFormatOption_Click;
+
+                RibbonMenuButtonFormat.Items.Add(ribbonMenuItem);
+            }
+        }
+
+        private void RibbonMenuItemAddFormatOption_Click(object sender, RoutedEventArgs e)
+        {
+            EFormatType formatType;
+            if (Enum.TryParse<EFormatType>(((RibbonMenuItem)sender).Name, out formatType))
+            {
+                viewModel.AddFormatMacroTask(new Models.MacroTask()
+                {
+                    FormatType = formatType,
+                    MacroTaskType = EMacroTaskType.Format,
+                });
+            }
         }
 
         private void CreateSpecialKeyMenuItems()
@@ -100,9 +133,8 @@ namespace RtfMacroStudioViewModel
 
         private void RichTextBoxMain_LostFocus(object sender, RoutedEventArgs e)
         {
-            var position = RichTextBoxMain.CaretPosition;
-            EditingCommands.MoveToLineStart.Execute(null, RichTextBoxMain);
-            MessageBox.Show($"Difference: {position.GetOffsetToPosition(RichTextBoxMain.CaretPosition)}");
+            //Update Text in viewmodel
         }
+
     }
 }

@@ -7,6 +7,7 @@ using RtfMacroStudioViewModel.ViewModel;
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -607,7 +608,11 @@ namespace RtfMacroStudioView
             Assert.That(theFont.Source == new FontFamily(fontFamilySource).Source);
         }
 
-        public void CanChangeTextSize()
+        [TestCase(16)]
+        [TestCase(10)]
+        [TestCase(160)]
+        [TestCase(4)]
+        public void CanChangeTextSize(double size)
         {
             GivenLinesOfTextAreAddedToCurrentRichText();
             GivenFirstWordIsSelected();
@@ -616,12 +621,152 @@ namespace RtfMacroStudioView
             {
                 MacroTaskType = EMacroTaskType.Format,
                 FormatType = EFormatType.TextSize,
-                TextSize = 16,
+                TextSize = size,
             });
             viewModel.RunMacro();
 
             var theSize = (double)viewModel.RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontSizeProperty);
-            Assert.That(theSize == 16);
+            Assert.That(theSize == size);
+        }
+
+        [Test]
+        public void CanDisplayAvailableFonts()
+        {
+            Assert.That(viewModel.AvailableFonts.Count > 10);
+        }
+
+        [Test]
+        public void CanRefreshCurrentBoldFormatting()
+        {
+            Assert.That(viewModel.CurrentBoldFlag == false);
+
+            GivenFirstWordOfDocumentTextIsBoldAndCaretIsAtDocumentStart();
+
+            viewModel.RefreshCurrentFormatting();
+
+            Assert.That(viewModel.CurrentBoldFlag == true);
+        }
+
+        [Test]
+        public void CanRefreshCurrentItalicFormatting()
+        {
+            Assert.That(viewModel.CurrentItalicFlag == false);
+
+            GivenFirstWordOfDocumentTextIsItalicAndCaretIsAtDocumentStart();
+
+            viewModel.RefreshCurrentFormatting();
+
+            Assert.That(viewModel.CurrentItalicFlag == true);
+        }
+
+        [Test]
+        public void CanRefreshCurrentUnderlineFormatting()
+        {
+            Assert.That(viewModel.CurrentUnderlineFlag == false);
+
+            GivenFirstWordOfDocumentTextIsUnderlinedAndCaretIsAtDocumentStart();
+
+            viewModel.RefreshCurrentFormatting();
+
+            Assert.That(viewModel.CurrentUnderlineFlag == true);
+        }
+
+        [Test]
+        public void CanRefreshCurrentFontFormatting()
+        {
+            Assert.That(viewModel.SelectedFont == "Segoe UI");
+
+            GivenFirstWordOfDocumentTextIsTimesNewRomanAndCaretIsAtDocumentStart();
+
+            viewModel.RefreshCurrentFormatting();
+
+            Assert.That(viewModel.SelectedFont == "Times New Roman");
+        }
+
+        [Test]
+        public void CanRefreshCurrentTextColorFormatting()
+        {
+            Assert.That(viewModel.CurrentColor == Colors.Black);
+
+            GivenFirstWordOfDocumentTextIsRedAndCaretIsAtDocumentStart();
+
+            viewModel.RefreshCurrentFormatting();
+
+            Assert.That(viewModel.CurrentColor == Colors.Red);
+        }
+
+        [Test]
+        public void CanRefreshCurrentTextSizeFormatting()
+        {
+            Assert.That(viewModel.CurrentTextSize == 12);
+
+            GivenFirstWordOfDocumentTexttIsSizeSixteenAndCaretIsAtDocumentStart();
+
+            viewModel.RefreshCurrentFormatting();
+
+            Assert.That(viewModel.CurrentTextSize == 16);
+        }
+
+        private void GivenFirstWordOfDocumentTexttIsSizeSixteenAndCaretIsAtDocumentStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+            viewModel.RichTextBoxControl.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, "16");
+            EditingCommandHelper editingCommandHelper = new EditingCommandHelper();
+            editingCommandHelper.MoveToDocumentStart(viewModel.RichTextBoxControl);
+        }
+
+        private void GivenFirstWordOfDocumentTextIsRedAndCaretIsAtDocumentStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+            viewModel.RichTextBoxControl.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, "Red");
+            EditingCommandHelper editingCommandHelper = new EditingCommandHelper();
+            editingCommandHelper.MoveToDocumentStart(viewModel.RichTextBoxControl);
+        }
+
+        private void GivenFirstWordOfDocumentTextIsTimesNewRomanAndCaretIsAtDocumentStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+            viewModel.RichTextBoxControl.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, "Times New Roman");
+            EditingCommandHelper editingCommandHelper = new EditingCommandHelper();
+            editingCommandHelper.MoveToDocumentStart(viewModel.RichTextBoxControl);
+        }
+
+        private void GivenFirstWordOfDocumentTextIsUnderlinedAndCaretIsAtDocumentStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+            var selectionRange = new TextRange(viewModel.RichTextBoxControl.Selection.Start, viewModel.RichTextBoxControl.Selection.End);
+            selectionRange.ApplyPropertyValue(TextBlock.TextDecorationsProperty,
+                new TextDecorationCollection()
+                { new TextDecoration()
+                    {
+                        Location = TextDecorationLocation.Underline,
+                    }
+                });
+
+            EditingCommandHelper editingCommandHelper = new EditingCommandHelper();
+            editingCommandHelper.MoveToDocumentStart(viewModel.RichTextBoxControl);
+        }
+
+        private void GivenFirstWordOfDocumentTextIsBoldAndCaretIsAtDocumentStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+            viewModel.RichTextBoxControl.Selection.ApplyPropertyValue(TextElement.FontWeightProperty, "Bold");
+            EditingCommandHelper editingCommandHelper = new EditingCommandHelper();
+            editingCommandHelper.MoveToDocumentStart(viewModel.RichTextBoxControl);
+        }
+
+        private void GivenFirstWordOfDocumentTextIsItalicAndCaretIsAtDocumentStart()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+            viewModel.RichTextBoxControl.Selection.ApplyPropertyValue(TextElement.FontStyleProperty, "Italic");
+            EditingCommandHelper editingCommandHelper = new EditingCommandHelper();
+            editingCommandHelper.MoveToDocumentStart(viewModel.RichTextBoxControl);
         }
 
         private void GivenFirstWordIsSelected()
