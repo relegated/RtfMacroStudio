@@ -31,8 +31,9 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public event NotifyPropertyChanged PropertyChanged;
 
-        public RichTextBox RichTextBoxControl { get; set; } = new RichTextBox();
+        public RichTextBox RichTextBoxControl { get; set; }
         public IEditingCommandHelper EditingCommandHelper { get; }
+        public IMacroTaskEditPresenter MacroTaskEditPresenter { get; }
         public List<EFormatType> SupportedFormattingOptions { get; set; } = new List<EFormatType>();
         public List<string> AvailableFonts { get; set; } = new List<string>();
         public string SelectedFont { get; set; } = string.Empty;
@@ -40,6 +41,7 @@ namespace RtfMacroStudioViewModel.ViewModel
         public bool CurrentItalicFlag { get; set; } = false;
         public bool CurrentUnderlineFlag { get; set; } = false;
         public Color CurrentColor { get; set; } = Colors.Black;
+        public MacroTask MacroTaskInEdit { get; set; }
 
         private double currentTextSize;
         public double CurrentTextSize 
@@ -56,6 +58,9 @@ namespace RtfMacroStudioViewModel.ViewModel
                 currentTextSize = newValue;
             }
         }
+
+
+
         public List<double> AvailableTextSizes { get; set; } = new List<double>();
 
 
@@ -64,8 +69,9 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         #region Constructor
 
-        public StudioViewModel(IEditingCommandHelper editingCommandHelper)
+        public StudioViewModel(IEditingCommandHelper editingCommandHelper, IMacroTaskEditPresenter macroTaskEditPresenter)
         {
+            RichTextBoxControl = new RichTextBox();
             GetAvailableFonts();
             SelectedFont = "Segoe UI";
             GetAvailableTextSizes();
@@ -74,7 +80,46 @@ namespace RtfMacroStudioViewModel.ViewModel
             SetupSupportedFormatTypes();
             CaretPosition = CurrentRichText.ContentStart;
             EditingCommandHelper = editingCommandHelper;
+            MacroTaskEditPresenter = macroTaskEditPresenter;
         }
+
+        public void EditMacroTaskBegin(MacroTask macroTask)
+        {
+            MacroTaskInEdit = macroTask;
+            MacroTaskEditPresenter.ShowEditControl(this);
+        }
+
+        public void EditMacroTaskCancel()
+        {
+            MacroTaskInEdit = null;
+        }
+
+        public void EditMacroTaskComplete(MacroTask displayedTask, string text, object selectedItem)
+        {           
+            switch (displayedTask.MacroTaskType)
+            {
+                case EMacroTaskType.Text:
+                    MacroTaskInEdit.Line = text;
+                    break;
+                case EMacroTaskType.SpecialKey:
+                    ESpecialKey eSpecialKey = displayedTask.SpecialKey;
+                    Enum.TryParse(selectedItem.ToString(), out eSpecialKey);
+                    displayedTask.SpecialKey = eSpecialKey;
+                    break;
+                case EMacroTaskType.Format:
+                    EFormatType eFormatType = displayedTask.FormatType;
+                    Enum.TryParse(selectedItem.ToString(), out eFormatType);
+                    displayedTask.FormatType = eFormatType;
+                    break;
+                default:
+                    break;
+            }
+
+            UpdateTask(displayedTask);
+            
+        }
+
+        
 
         private void GetAvailableFonts()
         {
@@ -127,6 +172,8 @@ namespace RtfMacroStudioViewModel.ViewModel
                         break;
                 }
             }
+            CurrentRichText = RichTextBoxControl.Document;
+            PropertyChanged?.Invoke(nameof(CurrentRichText));
         }
 
         private void ProcessFormat(MacroTask task)
@@ -299,19 +346,35 @@ namespace RtfMacroStudioViewModel.ViewModel
         }
 
 
-        private void ProcessText(Paragraph line)
+        private void ProcessText(string line)
         {
-            CurrentRichText.Blocks.Add(line);
-            CaretPosition = CurrentRichText.ContentEnd;
+            RichTextBoxControl.CaretPosition.InsertTextInRun(line);
+            UpdateCaretLocationBy(line.Length);
+        }
+
+        private void UpdateCaretLocationBy(int length)
+        {
+            TextPointer startLocation = RichTextBoxControl.Document.ContentStart;
+            int startOffset = startLocation.GetOffsetToPosition(RichTextBoxControl.CaretPosition);
+            TextPointer newLocation = startLocation.GetPositionAtOffset(startOffset + length, LogicalDirection.Forward);
+            if (newLocation == null)
+            {
+                RichTextBoxControl.CaretPosition = RichTextBoxControl.Document.ContentEnd;
+            }
+            else
+            {
+                RichTextBoxControl.CaretPosition = newLocation;
+            }
+            
+            CaretPosition = RichTextBoxControl.CaretPosition;
         }
 
         public void AddTextInputMacroTask(string textInput)
         {
-            Paragraph paragraph = new Paragraph();
-            paragraph.Inlines.Add(new Run(textInput));
             CurrentTaskList.Add(new MacroTask()
             {
-                Line = paragraph,
+                Index = CurrentTaskList.Count,
+                Line = textInput,
                 MacroTaskType = EMacroTaskType.Text
             });
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
@@ -321,14 +384,38 @@ namespace RtfMacroStudioViewModel.ViewModel
         {
             CurrentTaskList.Add(new MacroTask()
             {
+                Index = CurrentTaskList.Count,
                 MacroTaskType = EMacroTaskType.SpecialKey,
                 SpecialKey = specialKey,
             });
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
-        public void AddFormatMacroTask(MacroTask task)
+        public void AddFormatMacroTask(string formatTask)
         {
-            CurrentTaskList.Add(task);
+            EFormatType formatType;
+            if (Enum.TryParse<EFormatType>(formatTask, out formatType))
+            {
+                CurrentTaskList.Add(new MacroTask()
+                {
+                    Index = CurrentTaskList.Count,
+                    MacroTaskType = EMacroTaskType.Format,
+                    FormatType = formatType,
+                });
+                RaisePropertyChangedEvent(nameof(CurrentTaskList));
+            }
+           
+        }
+        public void AddFormatMacroTask(MacroTask macroTask)
+        {
+            CurrentTaskList.Add(new MacroTask()
+            {
+                Index = CurrentTaskList.Count,
+                MacroTaskType = macroTask.MacroTaskType,
+                FormatType = macroTask.FormatType,
+                TextColor = macroTask.TextColor,
+                TextSize = macroTask.TextSize,
+                TextFont = macroTask.TextFont,
+            });
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 
@@ -337,6 +424,9 @@ namespace RtfMacroStudioViewModel.ViewModel
             try
             {
                 CurrentTaskList.RemoveAt(taskIndex);
+                ReIndexTasks();
+
+                RaisePropertyChangedEvent(nameof(CurrentTaskList));
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -344,9 +434,25 @@ namespace RtfMacroStudioViewModel.ViewModel
             }
         }
 
+        private void ReIndexTasks()
+        {
+            for (int i = 0; i < CurrentTaskList.Count; i++)
+            {
+                CurrentTaskList[i].Index = i;
+            }
+        }
+
+        private void UpdateTask(MacroTask displayedTask)
+        {
+            
+            CurrentTaskList[displayedTask.Index] = displayedTask;
+            RaisePropertyChangedEvent(nameof(CurrentTaskList));
+        }
+
         public void ClearAllTasks()
         {
             CurrentTaskList.Clear();
+            RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 
         public void MoveTask(int sourceIndex, int destinationIndex)
@@ -360,6 +466,8 @@ namespace RtfMacroStudioViewModel.ViewModel
             var taskToMove = CurrentTaskList[sourceIndex];
             CurrentTaskList.RemoveAt(sourceIndex);
             CurrentTaskList.Insert(destinationIndex, taskToMove);
+            ReIndexTasks();
+            RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 
         private void RaisePropertyChangedEvent(string propertyName)
@@ -369,17 +477,7 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public static string GetTextFromMacroTask(MacroTask macroTask)
         {
-            string returnValue = string.Empty;
-
-            foreach (var item in macroTask.Line.Inlines)
-            {
-                if (item is Run)
-                {
-                    returnValue += ((Run)item).Text;
-                }
-            }
-
-            return returnValue;
+            return macroTask.Line;
         }
 
         public void RefreshCurrentFormatting()

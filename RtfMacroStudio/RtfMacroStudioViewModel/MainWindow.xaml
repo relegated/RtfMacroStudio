@@ -44,11 +44,15 @@
                 </RibbonGroup>
 
             </RibbonTab>
+            <!-- Ribbon Tab 2 - Macro -->
             <RibbonTab Header="Macro" KeyTip="M">
                 <RibbonGroup Header="New">
                     <RibbonButton x:Name="RibbonButtonAddMacroKeystroke" Label="Keystroke" Click="RibbonButtonAddMacroKeystroke_Click"></RibbonButton>
                     <RibbonMenuButton x:Name="RibbonMenuButtonSpecialKeys" Label="Special Key"></RibbonMenuButton>
                     <RibbonMenuButton x:Name="RibbonMenuButtonFormat" Label="Format"></RibbonMenuButton>
+                </RibbonGroup>
+                <RibbonGroup Header="Run">
+                    <RibbonButton x:Name="RibbonButtonRunMacro" Label="Run" Click="RibbonButtonRunMacro_Click"></RibbonButton>
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>

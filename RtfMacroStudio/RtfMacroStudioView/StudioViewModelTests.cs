@@ -22,12 +22,14 @@ namespace RtfMacroStudioView
         StudioViewModel viewModel;
         string propertyChangedText;
         Mock<IEditingCommandHelper> mockEditingCommandHelper;
+        Mock<IMacroTaskEditPresenter> mockTaskEditPresenter;
 
         [SetUp]
         public void Setup()
         {
+            mockTaskEditPresenter = new Mock<IMacroTaskEditPresenter>();
             mockEditingCommandHelper = new Mock<IEditingCommandHelper>();
-            viewModel = new StudioViewModel(mockEditingCommandHelper.Object);
+            viewModel = new StudioViewModel(mockEditingCommandHelper.Object, mockTaskEditPresenter.Object);
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
             propertyChangedText = string.Empty;
         }
@@ -51,7 +53,8 @@ namespace RtfMacroStudioView
 
             Assert.That(propertyChangedText == nameof(viewModel.CurrentTaskList));
             Assert.That(viewModel.CurrentTaskList.Count == 1);
-            Assert.That(((Run)viewModel.CurrentTaskList[0].Line.Inlines.FirstInline).Text == "text to add");
+            //Assert.That(((Run)viewModel.CurrentTaskList[0].Line.Inlines.FirstInline).Text == "text to add");
+            Assert.That(viewModel.CurrentTaskList[0].Line == "text to add");
         }
 
         [Test]
@@ -69,10 +72,7 @@ namespace RtfMacroStudioView
         [Test]
         public void CanAddFormatMacroTask()
         {
-            viewModel.AddFormatMacroTask(new MacroTask()
-            {
-                FormatType = EFormatType.Bold,
-            });
+            viewModel.AddFormatMacroTask(EFormatType.Bold.ToString());
 
             Assert.That(propertyChangedText == nameof(viewModel.CurrentTaskList));
             Assert.That(viewModel.CurrentTaskList.Count == 1);
@@ -144,17 +144,20 @@ namespace RtfMacroStudioView
         [TestCase(10)]
         public void RunMacroUpdatesTheTextBasedOnTask(int numberOfTasksToInsert)
         {
+            string textToAdd = "text to add";
             for (int i = 0; i < numberOfTasksToInsert; i++)
             {
-                viewModel.AddTextInputMacroTask("text to add"); 
+                viewModel.AddTextInputMacroTask(textToAdd);
             }
 
             //ensure the text has not been changed yet
             Assert.That(viewModel.CurrentRichText.Blocks.Count == 0);
 
             viewModel.RunMacro();
-            Assert.That(viewModel.CurrentRichText.Blocks.Count == numberOfTasksToInsert);
+            ThenTheMacroUpdatedTheTextBasedOnTheNumberOfTimesTextWasRun(numberOfTasksToInsert, textToAdd);
         }
+
+        
 
         [Test]
         public void CanGetTextFromMacroTask()
@@ -173,9 +176,11 @@ namespace RtfMacroStudioView
         [Test]
         public void TextInputChangesCaratPosition()
         {
+            Assert.That(viewModel.CurrentRichText.ContentStart.GetOffsetToPosition(viewModel.CaretPosition) == 0);
+            
             GivenLinesOfTextAreAddedToCurrentRichText();
 
-            Assert.That(viewModel.CaretPosition.CompareTo(viewModel.CurrentRichText.ContentEnd) == 0);
+            Assert.That(viewModel.CurrentRichText.ContentStart.GetOffsetToPosition(viewModel.CaretPosition) == 236);
         }
 
         [Test]
@@ -460,11 +465,7 @@ namespace RtfMacroStudioView
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddFormatMacroTask(new MacroTask() 
-            {
-               MacroTaskType = EMacroTaskType.Format,
-                FormatType = EFormatType.AlignCenter,
-            });
+            viewModel.AddFormatMacroTask(EFormatType.AlignCenter.ToString());
             viewModel.RunMacro();
 
             mockEditingCommandHelper.Verify(m => m.AlignCenter(It.IsAny<RichTextBox>()), Times.Once);
@@ -476,11 +477,7 @@ namespace RtfMacroStudioView
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddFormatMacroTask(new MacroTask()
-            {
-                MacroTaskType = EMacroTaskType.Format,
-                FormatType = EFormatType.AlignJustify,
-            });
+            viewModel.AddFormatMacroTask(EFormatType.AlignJustify.ToString());
             viewModel.RunMacro();
 
             mockEditingCommandHelper.Verify(m => m.AlignJustify(It.IsAny<RichTextBox>()), Times.Once);
@@ -492,11 +489,7 @@ namespace RtfMacroStudioView
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddFormatMacroTask(new MacroTask()
-            {
-                MacroTaskType = EMacroTaskType.Format,
-                FormatType = EFormatType.AlignLeft,
-            });
+            viewModel.AddFormatMacroTask(EFormatType.AlignLeft.ToString());
             viewModel.RunMacro();
 
             mockEditingCommandHelper.Verify(m => m.AlignLeft(It.IsAny<RichTextBox>()), Times.Once);
@@ -508,11 +501,7 @@ namespace RtfMacroStudioView
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddFormatMacroTask(new MacroTask()
-            {
-                MacroTaskType = EMacroTaskType.Format,
-                FormatType = EFormatType.AlignRight,
-            });
+            viewModel.AddFormatMacroTask(EFormatType.AlignRight.ToString());
             viewModel.RunMacro();
 
             mockEditingCommandHelper.Verify(m => m.AlignRight(It.IsAny<RichTextBox>()), Times.Once);
@@ -524,11 +513,7 @@ namespace RtfMacroStudioView
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddFormatMacroTask(new MacroTask()
-            {
-                MacroTaskType = EMacroTaskType.Format,
-                FormatType = EFormatType.Bold,
-            });
+            viewModel.AddFormatMacroTask(EFormatType.Bold.ToString());
             viewModel.RunMacro();
 
             mockEditingCommandHelper.Verify(m => m.ToggleBold(It.IsAny<RichTextBox>()), Times.Once);
@@ -540,11 +525,7 @@ namespace RtfMacroStudioView
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddFormatMacroTask(new MacroTask()
-            {
-                MacroTaskType = EMacroTaskType.Format,
-                FormatType = EFormatType.Italic,
-            });
+            viewModel.AddFormatMacroTask(EFormatType.Italic.ToString());
             viewModel.RunMacro();
 
             mockEditingCommandHelper.Verify(m => m.ToggleItalic(It.IsAny<RichTextBox>()), Times.Once);
@@ -556,11 +537,7 @@ namespace RtfMacroStudioView
             GivenLinesOfTextAreAddedToCurrentRichText();
             var startPosition = GivenCaratPositionIsInTheMiddleOfTheDocument();
 
-            viewModel.AddFormatMacroTask(new MacroTask()
-            {
-                MacroTaskType = EMacroTaskType.Format,
-                FormatType = EFormatType.Underline,
-            });
+            viewModel.AddFormatMacroTask(EFormatType.Underline.ToString());
             viewModel.RunMacro();
 
             mockEditingCommandHelper.Verify(m => m.ToggleUnderline(It.IsAny<RichTextBox>()), Times.Once);
@@ -779,20 +756,20 @@ namespace RtfMacroStudioView
 
         private TextPointer GivenCaratPositionIsInTheMiddleOfTheDocument()
         {
-            viewModel.CaretPosition = viewModel.CurrentRichText.Blocks.ElementAt(4).ContentStart.GetPositionAtOffset(14);
-            return viewModel.CurrentRichText.Blocks.ElementAt(4).ContentStart.GetPositionAtOffset(14);
+            viewModel.CaretPosition = viewModel.CurrentRichText.Blocks.ElementAt(0).ContentStart.GetPositionAtOffset(104);
+            return viewModel.CaretPosition;
         }
 
         private void GivenLinesOfTextAreAddedToCurrentRichText()
         {
-            viewModel.AddTextInputMacroTask("In the greenest of our valleys");
-            viewModel.AddTextInputMacroTask("By good angels tenanted,");
-            viewModel.AddTextInputMacroTask("Once a fair and stately palace-");
-            viewModel.AddTextInputMacroTask("Radiant palace-reared its head.");
-            viewModel.AddTextInputMacroTask("In the monarch Thought's dominion,");
-            viewModel.AddTextInputMacroTask("It stood there!");
-            viewModel.AddTextInputMacroTask("Never seraph spread a pinion");
-            viewModel.AddTextInputMacroTask("Over fabric half so fair!");
+            viewModel.AddTextInputMacroTask("In the greenest of our valleys" + Environment.NewLine);
+            viewModel.AddTextInputMacroTask("By good angels tenanted," + Environment.NewLine);
+            viewModel.AddTextInputMacroTask("Once a fair and stately palace-" + Environment.NewLine);
+            viewModel.AddTextInputMacroTask("Radiant palace-reared its head." + Environment.NewLine);
+            viewModel.AddTextInputMacroTask("In the monarch Thought's dominion," + Environment.NewLine);
+            viewModel.AddTextInputMacroTask("It stood there!" + Environment.NewLine);
+            viewModel.AddTextInputMacroTask("Never seraph spread a pinion" + Environment.NewLine);
+            viewModel.AddTextInputMacroTask("Over fabric half so fair!" + Environment.NewLine);
 
             viewModel.RunMacro();
 
@@ -808,6 +785,20 @@ namespace RtfMacroStudioView
             });
             viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlRightArrow);
             viewModel.AddTextInputMacroTask("Hello world!");
+        }
+
+        private void ThenTheMacroUpdatedTheTextBasedOnTheNumberOfTimesTextWasRun(int numberOfTasksToInsert, string textToAdd)
+        {
+            var textLength = 0;
+            foreach (Paragraph paragraph in viewModel.CurrentRichText.Blocks)
+            {
+                foreach (Run inline in paragraph.Inlines)
+                {
+                    textLength += inline.Text.Length;
+                }
+            }
+
+            Assert.That(textLength == numberOfTasksToInsert * textToAdd.Length);
         }
 
         private void ViewModel_PropertyChanged(string propertyName)

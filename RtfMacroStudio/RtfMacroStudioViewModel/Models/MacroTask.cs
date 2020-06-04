@@ -7,9 +7,10 @@ namespace RtfMacroStudioViewModel.Models
 {
     public class MacroTask
     {
+        public int Index { get; set; }
         public EMacroTaskType MacroTaskType { get; set; }
         
-        public Paragraph Line { get; set; }
+        public string Line { get; set; }
 
         public ESpecialKey SpecialKey { get; set; }
         public EFormatType FormatType { get; set; }

@@ -41,9 +41,9 @@ namespace RtfMacroStudioViewModel
 
             CreateSpecialKeyMenuItems();
             CreateFormatMenuItems();
-            
-            
 
+
+            viewModel.RichTextBoxControl = RichTextBoxMain;
             RichTextBoxMain.Document = viewModel.CurrentRichText;
             RichTextBoxMain.TextChanged += RichTextBoxMain_TextChanged;
 
@@ -68,15 +68,7 @@ namespace RtfMacroStudioViewModel
 
         private void RibbonMenuItemAddFormatOption_Click(object sender, RoutedEventArgs e)
         {
-            EFormatType formatType;
-            if (Enum.TryParse<EFormatType>(((RibbonMenuItem)sender).Name, out formatType))
-            {
-                viewModel.AddFormatMacroTask(new Models.MacroTask()
-                {
-                    FormatType = formatType,
-                    MacroTaskType = EMacroTaskType.Format,
-                });
-            }
+            viewModel.AddFormatMacroTask(((RibbonMenuItem)sender).Name);
         }
 
         private void CreateSpecialKeyMenuItems()
@@ -113,8 +105,11 @@ namespace RtfMacroStudioViewModel
                     TaskList.Children.Clear();
                     foreach (var macroTask in viewModel.CurrentTaskList)
                     {
-                        TaskList.Children.Add(new MacroTaskControl(macroTask));
+                        TaskList.Children.Add(new MacroTaskControl(macroTask, viewModel));
                     }
+                    break;
+                case nameof(viewModel.CurrentRichText):
+                    RichTextBoxMain.Focus();
                     break;
                 default:
                     break;
@@ -136,5 +131,9 @@ namespace RtfMacroStudioViewModel
             //Update Text in viewmodel
         }
 
+        private void RibbonButtonRunMacro_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.RunMacro();
+        }
     }
 }

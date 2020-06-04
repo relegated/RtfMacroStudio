@@ -5,11 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RtfMacroStudioViewModel.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="85" d:DesignWidth="200">
+             d:DesignHeight="85" d:DesignWidth="200" MouseDoubleClick="UserControl_MouseDoubleClick">
+    <UserControl.Resources>
+  
+    </UserControl.Resources>
     <Grid>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="85" Stroke="Black" VerticalAlignment="Top" Width="200"/>
-        <TextBlock x:Name="TaskTextTitle" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="20" Width="180" FontStyle="Italic"/>
-        <TextBlock x:Name="TaskText" HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="45" Width="180"/>
+        <Canvas Background="#FFF4F4F5" VerticalAlignment="Top" Width="200" Height="85" Margin="5,5,5,5">
+            <Canvas.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Delete Task" x:Name="ContextMenuItemDelete" Click="ContextMenuDelete_Click"></MenuItem>
+                </ContextMenu>
+            </Canvas.ContextMenu>
+            <Rectangle Stroke="Black" Width="200" Height="85"  />
+            <Rectangle x:Name="TextColor" Stroke="Black" Width="20" Height="20" Canvas.Left="160" Canvas.Top="40" />
+            <TextBlock x:Name="TaskTextTitle" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="20" Width="180" FontStyle="Italic"/>
+            <TextBlock x:Name="TaskText" HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="45" Width="180"/>
+            <TextBlock x:Name="FontFamily" Text="Font Family" Canvas.Left="20" Canvas.Top="55"></TextBlock>
+            <TextBlock x:Name="FontSize" Text="12" Canvas.Left="20" Canvas.Top="55"></TextBlock>
+        </Canvas>
+        
+        
 
     </Grid>
 </UserControl>
