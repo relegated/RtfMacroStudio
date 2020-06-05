@@ -26,6 +26,7 @@ namespace RtfMacroStudioViewModel
     public partial class MainWindow : Window
     {
         StudioViewModel viewModel;
+        private Point mouseStartPoint;
 
         public MainWindow(StudioViewModel viewModel)
         {
@@ -135,5 +136,6 @@ namespace RtfMacroStudioViewModel
         {
             viewModel.RunMacro();
         }
+
     }
 }

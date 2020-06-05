@@ -65,7 +65,7 @@
             </FlowDocument>
         </RichTextBox>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,8,8,8" Grid.Row="1">
-            <StackPanel x:Name="TaskList"/>
+            <StackPanel x:Name="TaskList" AllowDrop="True"/>
         </ScrollViewer>
 
 

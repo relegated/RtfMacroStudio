@@ -23,6 +23,8 @@ namespace RtfMacroStudioViewModel.Controls
 
             this.macroTask = macroTask;
             this.viewModel = viewModel;
+            this.DataContext = macroTask;
+            this.AllowDrop = true;
 
             TaskTextTitle.Text = RtfEnumStringRetriever.GetFriendlyString(macroTask.MacroTaskType);
 
@@ -108,5 +110,32 @@ namespace RtfMacroStudioViewModel.Controls
             viewModel.RemoveTaskAt(macroTask.Index);
         }
 
+        private void Canvas_Drop(object sender, DragEventArgs e)
+        {
+            viewModel.ProcessDroppedControl(macroTask, e.Data.GetData("macroTask"));
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                DataObject data = new DataObject();
+                data.SetData("macroTask", macroTask);
+                DragDrop.DoDragDrop(this, data, DragDropEffects.Move);
+            }
+        }
+
+        protected override void OnDragOver(DragEventArgs e)
+        {
+            base.OnDragOver(e);
+            RectangleBorder.StrokeThickness = 10;
+        }
+
+        protected override void OnDragLeave(DragEventArgs e)
+        {
+            base.OnDragLeave(e);
+            RectangleBorder.StrokeThickness = 1;
+        }
     }
 }

@@ -39,6 +39,9 @@ namespace RtfMacroStudioViewModel.ViewModel
         public string SelectedFont { get; set; } = string.Empty;
         public bool CurrentBoldFlag { get; set; } = false;
         public bool CurrentItalicFlag { get; set; } = false;
+
+      
+
         public bool CurrentUnderlineFlag { get; set; } = false;
         public Color CurrentColor { get; set; } = Colors.Black;
         public MacroTask MacroTaskInEdit { get; set; }
@@ -107,9 +110,7 @@ namespace RtfMacroStudioViewModel.ViewModel
                     displayedTask.SpecialKey = eSpecialKey;
                     break;
                 case EMacroTaskType.Format:
-                    EFormatType eFormatType = displayedTask.FormatType;
-                    Enum.TryParse(selectedItem.ToString(), out eFormatType);
-                    displayedTask.FormatType = eFormatType;
+                    ProcessFormatEditMacroTask(displayedTask, selectedItem);
                     break;
                 default:
                     break;
@@ -119,7 +120,33 @@ namespace RtfMacroStudioViewModel.ViewModel
             
         }
 
-        
+        private static void ProcessFormatEditMacroTask(MacroTask displayedTask, object selectedItem)
+        {
+            EFormatType eFormatType = displayedTask.FormatType;
+            if (eFormatType == EFormatType.Color)
+            {
+                if (selectedItem != null)
+                {
+                    displayedTask.TextColor = (Color)selectedItem;
+                }
+            }
+            else if (eFormatType == EFormatType.Font)
+            {
+                displayedTask.TextFont = new FontFamily(selectedItem.ToString());
+            }
+            else if (eFormatType == EFormatType.TextSize)
+            {
+                double textSize = displayedTask.TextSize;
+                double.TryParse(selectedItem.ToString(), out textSize);
+                displayedTask.TextSize = textSize;
+            }
+            else
+            {
+                Enum.TryParse(selectedItem.ToString(), out eFormatType);
+                displayedTask.FormatType = eFormatType;
+            }    
+        }
+
 
         private void GetAvailableFonts()
         {
@@ -146,9 +173,9 @@ namespace RtfMacroStudioViewModel.ViewModel
         private void SetupSupportedFormatTypes()
         {
             SupportedFormattingOptions = Enum.GetValues(typeof(EFormatType)).Cast<EFormatType>().ToList();
-            SupportedFormattingOptions.Remove(EFormatType.Color);
-            SupportedFormattingOptions.Remove(EFormatType.Font);
-            SupportedFormattingOptions.Remove(EFormatType.TextSize);
+            //SupportedFormattingOptions.Remove(EFormatType.Color);
+            //SupportedFormattingOptions.Remove(EFormatType.Font);
+            //SupportedFormattingOptions.Remove(EFormatType.TextSize);
         }
 
         #endregion
@@ -400,6 +427,9 @@ namespace RtfMacroStudioViewModel.ViewModel
                     Index = CurrentTaskList.Count,
                     MacroTaskType = EMacroTaskType.Format,
                     FormatType = formatType,
+                    TextColor = Colors.Black,
+                    TextFont = new FontFamily("Segoe UI"),
+                    TextSize = 12,
                 });
                 RaisePropertyChangedEvent(nameof(CurrentTaskList));
             }
@@ -468,6 +498,11 @@ namespace RtfMacroStudioViewModel.ViewModel
             CurrentTaskList.Insert(destinationIndex, taskToMove);
             ReIndexTasks();
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
+        }
+
+        public void ProcessDroppedControl(object dropTask, object dragTask)
+        {
+            MoveTask(((MacroTask)dragTask).Index, ((MacroTask)dropTask).Index);
         }
 
         private void RaisePropertyChangedEvent(string propertyName)

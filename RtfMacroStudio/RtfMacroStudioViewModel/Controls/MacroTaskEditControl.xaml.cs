@@ -1,20 +1,10 @@
 ﻿using RtfMacroStudioViewModel.Enums;
-using RtfMacroStudioViewModel.Interfaces;
 using RtfMacroStudioViewModel.Models;
 using RtfMacroStudioViewModel.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static RtfMacroStudioViewModel.Enums.Enums;
 
 namespace RtfMacroStudioViewModel.Controls
@@ -68,6 +58,7 @@ namespace RtfMacroStudioViewModel.Controls
             ComboBoxItems.Visibility = Visibility.Hidden;
             TextBoxTaskText.Visibility = Visibility.Visible;
             RectangleColor.Visibility = Visibility.Hidden;
+            TextSizeSelector.Visibility = Visibility.Hidden;
         }
 
         private void ShowOnlyComboBox()
@@ -75,6 +66,7 @@ namespace RtfMacroStudioViewModel.Controls
             ComboBoxItems.Visibility = Visibility.Visible;
             TextBoxTaskText.Visibility = Visibility.Hidden;
             RectangleColor.Visibility = Visibility.Hidden;
+            TextSizeSelector.Visibility = Visibility.Hidden;
         }
 
         private void ShowAppropriateFormattingOptions()
@@ -84,6 +76,7 @@ namespace RtfMacroStudioViewModel.Controls
                 ComboBoxItems.Visibility = Visibility.Hidden;
                 TextBoxTaskText.Visibility = Visibility.Hidden;
                 RectangleColor.Visibility = Visibility.Visible;
+                TextSizeSelector.Visibility = Visibility.Hidden;
                 RectangleColor.Fill = new SolidColorBrush(DisplayedTask.TextColor);
             }
             else if (DisplayedTask.FormatType == EFormatType.Font)
@@ -91,22 +84,25 @@ namespace RtfMacroStudioViewModel.Controls
                 ComboBoxItems.Visibility = Visibility.Visible;
                 TextBoxTaskText.Visibility = Visibility.Hidden;
                 RectangleColor.Visibility = Visibility.Hidden;
+                TextSizeSelector.Visibility = Visibility.Hidden;
                 ComboBoxItems.ItemsSource = viewModel.AvailableFonts;
                 SelectComboBoxItem(DisplayedTask.TextFont.Source);
             }
             else if (DisplayedTask.FormatType == EFormatType.TextSize)
             {
-                ComboBoxItems.Visibility = Visibility.Visible;
+                ComboBoxItems.Visibility = Visibility.Hidden;
                 TextBoxTaskText.Visibility = Visibility.Hidden;
                 RectangleColor.Visibility = Visibility.Hidden;
-                ComboBoxItems.ItemsSource = viewModel.AvailableTextSizes;
-                SelectComboBoxItem(DisplayedTask.TextSize.ToString());
+                TextSizeSelector.Visibility = Visibility.Visible;
+                TextSizeSelector.ComboBoxSizes.ItemsSource = viewModel.AvailableTextSizes;
+                TextSizeSelector.SelectSize(DisplayedTask.TextSize.ToString());
             }
             else
             {
                 ComboBoxItems.Visibility = Visibility.Visible;
                 TextBoxTaskText.Visibility = Visibility.Hidden;
                 RectangleColor.Visibility = Visibility.Hidden;
+                TextSizeSelector.Visibility = Visibility.Hidden;
                 ComboBoxItems.ItemsSource = viewModel.SupportedFormattingOptions;
                 SelectComboBoxItem(DisplayedTask.FormatType.ToString());
             }
@@ -120,7 +116,23 @@ namespace RtfMacroStudioViewModel.Controls
 
         private void buttonOk_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.EditMacroTaskComplete(DisplayedTask, TextBoxTaskText.Text, ComboBoxItems.SelectedItem);
+            if (DisplayedTask.MacroTaskType == EMacroTaskType.Format && 
+                (DisplayedTask.FormatType == EFormatType.Color || DisplayedTask.FormatType == EFormatType.TextSize))
+            {
+                if (DisplayedTask.FormatType == EFormatType.Color)
+                {
+                    viewModel.EditMacroTaskComplete(DisplayedTask, string.Empty, ((SolidColorBrush)RectangleColor.Fill).Color);
+                }
+                else if (DisplayedTask.FormatType == EFormatType.TextSize)
+                {
+                    viewModel.EditMacroTaskComplete(DisplayedTask, string.Empty, TextSizeSelector.ComboBoxSizes.SelectedItem);
+                }
+            }
+            else
+            {
+                viewModel.EditMacroTaskComplete(DisplayedTask, TextBoxTaskText.Text, ComboBoxItems.SelectedItem);
+            }
+            
             this.Close();
         }
 
@@ -133,6 +145,22 @@ namespace RtfMacroStudioViewModel.Controls
                     ComboBoxItems.SelectedIndex = i;
                     return;
                 }
+            }
+        }
+
+        private void RectangleColor_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (RectangleColor.Visibility == Visibility.Hidden)
+            {
+                return;
+            }
+
+            ColorDialog colorDialog = new ColorDialog();
+
+            if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                DisplayedTask.TextColor = Color.FromRgb(colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
+                RectangleColor.Fill = new SolidColorBrush(DisplayedTask.TextColor);
             }
         }
     }

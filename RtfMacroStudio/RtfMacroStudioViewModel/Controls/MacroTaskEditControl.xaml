@@ -13,7 +13,9 @@
             <TextBox x:Name="TextBoxTaskText" Margin="10,41,10,3" Width="290" Height="30"/>
             <Button x:Name="buttonOk" Content="OK" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Click="buttonOk_Click" Canvas.Left="145" Canvas.Top="100"/>
             <Button x:Name="buttonCancel" Content="Cancel" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Click="buttonCancel_Click" Canvas.Left="230" Canvas.Top="100" />
-<Rectangle x:Name="RectangleColor" Width="240" Height="40" Canvas.Left="40" Canvas.Top="40" Stroke="Black" />
+            <Rectangle x:Name="RectangleColor" Width="240" Height="40" Canvas.Left="40" Canvas.Top="40" Stroke="Black" MouseUp="RectangleColor_MouseUp" />
+            
+            <local:TextSizeEditControl x:Name="TextSizeSelector" Height="34" Canvas.Left="88" Canvas.Top="46" Width="132"/>
         </Canvas>
 
     </Grid>
