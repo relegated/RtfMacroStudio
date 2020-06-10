@@ -65,6 +65,7 @@ namespace RtfMacroStudioViewModel.ViewModel
 
 
         public List<double> AvailableTextSizes { get; set; } = new List<double>();
+        public bool IsCurrentlyRecording { get; set; } = false;
 
 
 
@@ -533,6 +534,201 @@ namespace RtfMacroStudioViewModel.ViewModel
 
             //Undo select
             EditingCommandHelper.MoveLeftByCharacter(RichTextBoxControl);
+        }
+
+        public void RecordMacroStart()
+        {
+            ClearAllTasks();
+            IsCurrentlyRecording = true;
+        }
+
+        public void ProcessKey(Key keyInput, ModifierKeys[] modifierKeys)
+        {
+            if (IsCurrentlyRecording)
+            {
+                if (IsMovementKey(keyInput))
+                {
+                    CreateMovementKeyTask(keyInput, modifierKeys);
+                }
+                else if (IsControlPressed(modifierKeys))
+                {
+                    CreateFormatKeyTask(keyInput);
+                }
+                
+                //KeyConverter kc = new KeyConverter();
+                //var str = kc.ConvertToString(keyInput);
+            }
+        }
+
+        private void CreateFormatKeyTask(Key keyInput)
+        {
+            if (keyInput == Key.B)
+            {
+                AddFormatMacroTask("Bold");
+            }
+            if (keyInput == Key.I)
+            {
+                AddFormatMacroTask("Italic");
+            }
+            if (keyInput == Key.U)
+            {
+                AddFormatMacroTask("Underline");
+            }
+            if (keyInput == Key.E)
+            {
+                AddFormatMacroTask("AlignCenter");
+            }
+            if (keyInput == Key.J)
+            {
+                AddFormatMacroTask("AlignJustify");
+            }
+            if (keyInput == Key.L)
+            {
+                AddFormatMacroTask("AlignLeft");
+            }
+            if (keyInput == Key.R)
+            {
+                AddFormatMacroTask("AlignRight");
+            }
+        }
+
+        private bool IsControlPressed(ModifierKeys[] modifierKeys)
+        {
+            if (modifierKeys == null)
+            {
+                return false;
+            }
+
+            return modifierKeys.Contains(ModifierKeys.Control);
+        }
+
+        private void CreateMovementKeyTask(Key keyInput, ModifierKeys[] modifierKeys)
+        {
+            if (modifierKeys == null) // NO MODIFIER KEYS
+            {
+                //process the basic key
+                if (keyInput == Key.Left)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.LeftArrow);
+                }
+                else if (keyInput == Key.Right)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.RightArrow);
+                }
+                else if (keyInput == Key.Up)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.UpArrow);
+                }
+                else if (keyInput == Key.Down)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.DownArrow);
+                }
+                else if (keyInput == Key.Home)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.Home);
+                }
+                else if (keyInput == Key.End)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.End);
+                }
+            }
+            else if (modifierKeys.Length == 1) // EITHER CONTROL OR ALT
+            {
+                switch (modifierKeys[0])
+                {
+                    case ModifierKeys.Control:
+                        if (keyInput == Key.Left)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.ControlLeftArrow);
+                        }
+                        else if (keyInput == Key.Right)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.ControlRightArrow);
+                        }
+                        else if (keyInput == Key.Home)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.ControlHome);
+                        }
+                        else if (keyInput == Key.End)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.ControlEnd);
+                        }
+                        else if (keyInput == Key.Up)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.UpArrow);
+                        }
+                        else if (keyInput == Key.Down)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.DownArrow);
+                        }
+                        break;
+                    case ModifierKeys.Shift:
+                        if (keyInput == Key.Left)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.ShiftLeftArrow);
+                        }
+                        else if (keyInput == Key.Right)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.ShiftRightArrow);
+                        }
+                        else if (keyInput == Key.Home)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.ShiftHome);
+                        }
+                        else if (keyInput == Key.End)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.ShiftEnd);
+                        }
+                        else if (keyInput == Key.Up)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.UpArrow);
+                        }
+                        else if (keyInput == Key.Down)
+                        {
+                            AddSpecialKeyMacroTask(ESpecialKey.DownArrow);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else // BOTH CONTROL AND SHIFT
+            {
+                if (keyInput == Key.Left)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.ControlShiftLeftArrow);
+                }
+                else if (keyInput == Key.Right)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.ControlShiftRightArrow);
+                }
+                else if (keyInput == Key.Home)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.ControlShiftHome);
+                }
+                else if (keyInput == Key.End)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.ControlShiftEnd);
+                }
+                else if (keyInput == Key.Up)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.UpArrow);
+                }
+                else if (keyInput == Key.Down)
+                {
+                    AddSpecialKeyMacroTask(ESpecialKey.DownArrow);
+                }
+            }
+        }
+
+        private bool IsMovementKey(Key keyInput)
+        {
+            return (keyInput == Key.Left ||
+                keyInput == Key.Right ||
+                keyInput == Key.Up ||
+                keyInput == Key.Down ||
+                keyInput == Key.Home ||
+                keyInput == Key.End);
         }
     }
 }

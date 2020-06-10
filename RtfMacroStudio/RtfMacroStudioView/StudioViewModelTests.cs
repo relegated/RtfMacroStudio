@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Castle.Components.DictionaryAdapter;
+using Moq;
 using NUnit.Framework;
 using RtfMacroStudioViewModel.Helpers;
 using RtfMacroStudioViewModel.Interfaces;
@@ -682,6 +683,244 @@ namespace RtfMacroStudioView
             viewModel.RefreshCurrentFormatting();
 
             Assert.That(viewModel.CurrentTextSize == 16);
+        }
+
+        [Test]
+        public void RecordMacroStartClearsCurrentTasksAndSetsFlag()
+        {
+            Assert.That(viewModel.IsCurrentlyRecording == false);
+            GivenLinesOfTextAreAddedToCurrentRichText();
+
+            viewModel.RecordMacroStart();
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+            Assert.That(viewModel.IsCurrentlyRecording);
+        }
+
+        [Test]
+        public void RecordMacroProcessesAKeyOnlyIfFlagIsSet()
+        {
+            viewModel.ProcessKey(Key.Left, new ModifierKeys[] { ModifierKeys.Control, ModifierKeys.Shift });
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+        }
+
+        [TestCase(Key.Left, true, true)]
+        [TestCase(Key.Left, false, true)]
+        [TestCase(Key.Left, true, false)]
+        [TestCase(Key.Left, false, false)]
+        [TestCase(Key.Right, true, true)]
+        [TestCase(Key.Home, false, true)]
+        [TestCase(Key.End, true, false)]
+        [TestCase(Key.Right, false, false)]
+        [TestCase(Key.Up, true, true)]
+        [TestCase(Key.Up, false, false)]
+        [TestCase(Key.Down, false, false)]
+        [TestCase(Key.Down, true, false)]
+        public void RecordMacroProcessesAMovementKey(Key keyInput, bool withControl, bool withShift)
+        {
+            var modifierKeyArray = GetModifierKeyArray(withControl, withShift);
+            viewModel.RecordMacroStart();
+
+            viewModel.ProcessKey(keyInput, modifierKeyArray);
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.SpecialKey);
+            Assert.That(viewModel.CurrentTaskList[0].SpecialKey == GetExpectedSpecialKey(keyInput, withControl, withShift));
+        }
+
+        [TestCase(Key.B, true)]
+        [TestCase(Key.E, true)]
+        [TestCase(Key.J, true)]
+        [TestCase(Key.L, true)]
+        [TestCase(Key.R, true)]
+        [TestCase(Key.I, true)]
+        [TestCase(Key.U, true)]
+        public void RecordMacroProcessesAFormattingKey(Key keyInput, bool withControl)
+        {
+            var modifierKeys = GetControlOnlyModifierKeyArray(withControl);
+            viewModel.RecordMacroStart();
+
+            viewModel.ProcessKey(keyInput, modifierKeys);
+
+            if (withControl)
+            {
+                Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Format);
+                Assert.That(viewModel.CurrentTaskList[0].FormatType == GetFormatType(keyInput));
+            }
+        }
+
+        private EFormatType GetFormatType(Key keyInput)
+        {
+            if (keyInput == Key.B)
+            {
+                return EFormatType.Bold;
+            }
+            if (keyInput == Key.I)
+            {
+                return EFormatType.Italic;
+            }
+            if (keyInput == Key.U)
+            {
+                return EFormatType.Underline;
+            }
+            if (keyInput == Key.E)
+            {
+                return EFormatType.AlignCenter;
+            }
+            if (keyInput == Key.J)
+            {
+                return EFormatType.AlignJustify;
+            }
+            if (keyInput == Key.L)
+            {
+                return EFormatType.AlignLeft;
+            }
+            if (keyInput == Key.R)
+            {
+                return EFormatType.AlignRight;
+            }
+            return EFormatType.Color;
+        }
+
+        private ModifierKeys[] GetControlOnlyModifierKeyArray(bool withControl)
+        {
+            var modifierKeys = new ModifierKeys[] { ModifierKeys.Control };
+            if (withControl == false)
+            {
+                modifierKeys = null;
+            }
+            return modifierKeys;
+        }
+
+        private ModifierKeys[] GetModifierKeyArray(bool withControl, bool withShift)
+        {
+            if (withControl && withShift)
+            {
+                return new ModifierKeys[] { ModifierKeys.Control, ModifierKeys.Shift };
+            }
+            else if (withControl)
+            {
+                return new ModifierKeys[] { ModifierKeys.Control };
+            }
+            else if (withShift)
+            {
+                return new ModifierKeys[] { ModifierKeys.Shift };
+            }
+
+            return null;
+        }
+
+        private ESpecialKey GetExpectedSpecialKey(Key keyInput, bool withControl, bool withShift)
+        {
+            if (withControl && withShift)
+            {
+                if (keyInput == Key.Left)
+                {
+                    return ESpecialKey.ControlShiftLeftArrow;
+                }
+                if (keyInput == Key.Right)
+                {
+                    return ESpecialKey.ControlShiftRightArrow;
+                }
+                if (keyInput == Key.Home)
+                {
+                    return ESpecialKey.ControlShiftHome;
+                }    
+                if (keyInput == Key.End)
+                {
+                    return ESpecialKey.ControlShiftEnd;
+                }
+                if (keyInput == Key.Up)
+                {
+                    return ESpecialKey.UpArrow;
+                }
+                if (keyInput == Key.Down)
+                {
+                    return ESpecialKey.DownArrow;
+                }
+            }
+            else if (withControl)
+            {
+                if (keyInput == Key.Left)
+                {
+                    return ESpecialKey.ControlLeftArrow;
+                }
+                if (keyInput == Key.Right)
+                {
+                    return ESpecialKey.ControlRightArrow;
+                }
+                if (keyInput == Key.Home)
+                {
+                    return ESpecialKey.ControlHome;
+                }
+                if (keyInput == Key.End)
+                {
+                    return ESpecialKey.ControlEnd;
+                }
+                if (keyInput == Key.Up)
+                {
+                    return ESpecialKey.UpArrow;
+                }
+                if (keyInput == Key.Down)
+                {
+                    return ESpecialKey.DownArrow;
+                }
+            }
+            else if (withShift)
+            {
+                if (keyInput == Key.Left)
+                {
+                    return ESpecialKey.ShiftLeftArrow;
+                }
+                if (keyInput == Key.Right)
+                {
+                    return ESpecialKey.ShiftRightArrow;
+                }
+                if (keyInput == Key.Home)
+                {
+                    return ESpecialKey.ShiftHome;
+                }
+                if (keyInput == Key.End)
+                {
+                    return ESpecialKey.ShiftEnd;
+                }
+                if (keyInput == Key.Up)
+                {
+                    return ESpecialKey.UpArrow;
+                }
+                if (keyInput == Key.Down)
+                {
+                    return ESpecialKey.DownArrow;
+                }
+            }
+            else
+            {
+                if (keyInput == Key.Left)
+                {
+                    return ESpecialKey.LeftArrow;
+                }
+                if (keyInput == Key.Right)
+                {
+                    return ESpecialKey.RightArrow;
+                }
+                if (keyInput == Key.Home)
+                {
+                    return ESpecialKey.Home;
+                }
+                if (keyInput == Key.End)
+                {
+                    return ESpecialKey.End;
+                }
+                if (keyInput == Key.Up)
+                {
+                    return ESpecialKey.UpArrow;
+                }
+                if (keyInput == Key.Down)
+                {
+                    return ESpecialKey.DownArrow;
+                }
+            }
+            return ESpecialKey.Backspace;
         }
 
         private void GivenFirstWordOfDocumentTexttIsSizeSixteenAndCaretIsAtDocumentStart()
