@@ -749,6 +749,73 @@ namespace RtfMacroStudioView
             }
         }
 
+        [Test]
+        public void RecordMacroTextStartsStringCapture()
+        {
+            viewModel.RecordMacroStart();
+            Assert.That(viewModel.IsCapturingString == false);
+
+            viewModel.ProcessKey(Key.B, null);
+
+            Assert.That(viewModel.IsCapturingString);
+        }
+
+        [TestCase(Key.Up, false, false, false)]
+        [TestCase(Key.Home, true, true, false)]
+        [TestCase(Key.B, true, false, false)]
+        [TestCase(Key.B, false, true, true)]
+        [TestCase(Key.B, false, false, true)]
+        public void RecordMacroTextStopsStringCaptureWithFormatOrMoveKey(Key keyInput, bool withControl, bool withShift, bool expectedStringCaptureState)
+        {
+            viewModel.RecordMacroStart();
+            viewModel.ProcessKey(Key.B, null);
+            var modifierArray = GetModifierKeyArray(withControl, withShift);
+
+            viewModel.ProcessKey(keyInput, modifierArray);
+
+            Assert.That(viewModel.IsCapturingString == expectedStringCaptureState);
+        }
+
+        [Test]
+        public void StopRecordingTurnsFlagsOff()
+        {
+            viewModel.RecordMacroStart();
+            viewModel.ProcessKey(Key.B, null);
+
+            viewModel.StopRecording();
+
+            Assert.That(viewModel.IsCurrentlyRecording == false);
+            Assert.That(viewModel.IsCapturingString == false);
+        }
+
+        [Test]
+        public void TurningIsCapturingStringToFalseCreatesTextTask()
+        {
+            viewModel.RecordMacroStart();
+            GivenUserTypesHotGarbageBackspaceBang();
+
+            viewModel.StopRecording();
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Text);
+            Assert.That(viewModel.CurrentTaskList[0].Line == "Hot garbage!");
+        }
+
+        private void GivenUserTypesHotGarbageBackspaceBang()
+        {
+            viewModel.ProcessKey(Key.H, new ModifierKeys[] { ModifierKeys.Shift });
+            viewModel.ProcessKey(Key.O, null);
+            viewModel.ProcessKey(Key.T, null);
+            viewModel.ProcessKey(Key.Space, null);
+            viewModel.ProcessKey(Key.G, null);
+            viewModel.ProcessKey(Key.A, null);
+            viewModel.ProcessKey(Key.R, null);
+            viewModel.ProcessKey(Key.B, null);
+            viewModel.ProcessKey(Key.A, null);
+            viewModel.ProcessKey(Key.G, null);
+            viewModel.ProcessKey(Key.E, null);
+            viewModel.ProcessKey(Key.D1, new ModifierKeys[] { ModifierKeys.Shift });
+        }
+
         private EFormatType GetFormatType(Key keyInput)
         {
             if (keyInput == Key.B)

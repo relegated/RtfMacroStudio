@@ -47,6 +47,8 @@ namespace RtfMacroStudioViewModel.ViewModel
         public MacroTask MacroTaskInEdit { get; set; }
 
         private double currentTextSize;
+        private string currentCaptureString;
+
         public double CurrentTextSize 
         {
             get
@@ -66,6 +68,21 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public List<double> AvailableTextSizes { get; set; } = new List<double>();
         public bool IsCurrentlyRecording { get; set; } = false;
+
+        private bool isCapturingString = false;
+        public bool IsCapturingString 
+        {
+            get => isCapturingString;
+            set
+            {
+                if (value == false && isCapturingString == true)
+                {
+                    AddTextInputMacroTask(currentCaptureString);
+                    currentCaptureString = string.Empty;
+                }
+                isCapturingString = value;
+            }
+        }
 
 
 
@@ -548,16 +565,147 @@ namespace RtfMacroStudioViewModel.ViewModel
             {
                 if (IsMovementKey(keyInput))
                 {
+                    IsCapturingString = false;
                     CreateMovementKeyTask(keyInput, modifierKeys);
+                }
+                else if (IsSpecialKey(keyInput))
+                {
+                    IsCapturingString = false;
+                    CreateSpecialKeyTask(keyInput, modifierKeys);
                 }
                 else if (IsControlPressed(modifierKeys))
                 {
+                    IsCapturingString = false;
                     CreateFormatKeyTask(keyInput);
                 }
+                else
+                {
+                    IsCapturingString = true;
+                    currentCaptureString += TranslateKeyToStringForCapture(keyInput, modifierKeys);
+                }
                 
-                //KeyConverter kc = new KeyConverter();
-                //var str = kc.ConvertToString(keyInput);
+                
             }
+        }
+
+        private void CreateSpecialKeyTask(Key keyInput, ModifierKeys[] modifierKeys)
+        {
+            if (keyInput == Key.Enter)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Enter);
+            }
+            else if (keyInput == Key.Back)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Backspace);
+            }
+            else if (keyInput == Key.Delete)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Delete);
+            }
+        }
+
+        private bool IsSpecialKey(Key keyInput)
+        {
+            return keyInput == Key.Enter ||
+                keyInput == Key.Delete ||
+                keyInput == Key.Back;
+        }
+
+        private string TranslateKeyToStringForCapture(Key keyInput, ModifierKeys[] modifierKeys)
+        {
+            //letters can be a straight conversion to initial string
+            KeyConverter kc = new KeyConverter();
+            var keyString = kc.ConvertToString(keyInput);
+
+            if (keyString.Length == 1)
+            {
+                var charVersion = keyString[0];
+
+                if (char.IsLetter(charVersion))
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return keyString.ToUpper();
+                    }
+
+                    return keyString.ToLower();
+                }
+                else if (char.IsDigit(charVersion))
+                {
+
+                    //is it punctuation above the number keys?
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        if (keyInput == Key.D1)
+                        {
+                            return "!";
+                        }
+                        else if (keyInput == Key.D2)
+                        {
+                            return "@";
+                        }
+                        else if (keyInput == Key.D3)
+                        {
+                            return "#";
+                        }
+                        else if (keyInput == Key.D4)
+                        {
+                            return "$";
+                        }
+                        else if (keyInput == Key.D5)
+                        {
+                            return "%";
+                        }
+                        else if (keyInput == Key.D6)
+                        {
+                            return "^";
+                        }
+                        else if (keyInput == Key.D7)
+                        {
+                            return "&";
+                        }
+                        else if (keyInput == Key.D8)
+                        {
+                            return "*";
+                        }
+                        else if (keyInput == Key.D9)
+                        {
+                            return "(";
+                        }
+                        else if (keyInput == Key.D0)
+                        {
+                            return "-";
+                        }
+                    }
+
+                    //it's a regular digit
+                    return keyString;
+
+                }
+
+                if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                {
+                    return keyString.ToUpper();
+                }
+
+                return keyString.ToLower();
+            }
+            else
+            {
+
+                //other special text input that doesn't break the string
+                if (keyInput == Key.Space)
+                {
+                    return " ";
+                }
+                else if (keyInput == Key.Tab)
+                {
+                    return "\t";
+                }
+
+            }
+
+            return string.Empty;
         }
 
         private void CreateFormatKeyTask(Key keyInput)
@@ -719,6 +867,12 @@ namespace RtfMacroStudioViewModel.ViewModel
                     AddSpecialKeyMacroTask(ESpecialKey.DownArrow);
                 }
             }
+        }
+
+        public void StopRecording()
+        {
+            IsCapturingString = false;
+            IsCurrentlyRecording = false;
         }
 
         private bool IsMovementKey(Key keyInput)
