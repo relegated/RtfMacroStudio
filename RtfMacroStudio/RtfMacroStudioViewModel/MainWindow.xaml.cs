@@ -136,6 +136,5 @@ namespace RtfMacroStudioViewModel
         {
             viewModel.RunMacro();
         }
-
     }
 }

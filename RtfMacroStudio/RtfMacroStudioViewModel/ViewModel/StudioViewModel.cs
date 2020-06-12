@@ -674,7 +674,7 @@ namespace RtfMacroStudioViewModel.ViewModel
                         }
                         else if (keyInput == Key.D0)
                         {
-                            return "-";
+                            return ")";
                         }
                     }
 
@@ -692,7 +692,6 @@ namespace RtfMacroStudioViewModel.ViewModel
             }
             else
             {
-
                 //other special text input that doesn't break the string
                 if (keyInput == Key.Space)
                 {
@@ -702,7 +701,94 @@ namespace RtfMacroStudioViewModel.ViewModel
                 {
                     return "\t";
                 }
-
+                else if (keyInput == Key.Oem3)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "~";
+                    }
+                    return "`";
+                }
+                else if (keyInput == Key.OemMinus)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "_";
+                    }
+                    return "-";
+                }
+                else if (keyInput == Key.OemPlus)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "+";
+                    }
+                    return "=";
+                }
+                else if (keyInput == Key.Oem4)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "{";
+                    }
+                    return "[";
+                }
+                else if (keyInput == Key.Oem6)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "}";
+                    }
+                    return "]";
+                }
+                else if (keyInput == Key.Oem5)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "|";
+                    }
+                    return "\\";
+                }
+                else if (keyInput == Key.Oem1)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return ":";
+                    }
+                    return ";";
+                }
+                else if (keyInput == Key.Oem7)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "\"";
+                    }
+                    return "'";
+                }
+                else if (keyInput == Key.OemComma)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "<";
+                    }
+                    return ",";
+                }
+                else if (keyInput == Key.OemPeriod)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return ">";
+                    }
+                    return ".";
+                }
+                else if (keyInput == Key.Oem2)
+                {
+                    if (modifierKeys != null && modifierKeys.Contains(ModifierKeys.Shift))
+                    {
+                        return "?";
+                    }
+                    return "/";
+                }
             }
 
             return string.Empty;

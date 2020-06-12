@@ -800,6 +800,54 @@ namespace RtfMacroStudioView
             Assert.That(viewModel.CurrentTaskList[0].Line == "Hot garbage!");
         }
 
+        [Test]
+        public void MacroRecordingCapturesPunctuationCharacters()
+        {
+            viewModel.RecordMacroStart();
+            GivenUserTypesPunctuation();
+
+            viewModel.StopRecording();
+
+            Assert.That(viewModel.CurrentTaskList[0].Line == @"`~!@#$%^&*()-_=+[{]}\|;:'"",<.>/?");
+
+        }
+
+        private void GivenUserTypesPunctuation()
+        {
+            viewModel.ProcessKey(Key.Oem3, null); //`
+            viewModel.ProcessKey(Key.Oem3, new ModifierKeys[] { ModifierKeys.Shift }); //~
+            viewModel.ProcessKey(Key.D1, new ModifierKeys[] { ModifierKeys.Shift }); //!
+            viewModel.ProcessKey(Key.D2, new ModifierKeys[] { ModifierKeys.Shift }); //@
+            viewModel.ProcessKey(Key.D3, new ModifierKeys[] { ModifierKeys.Shift }); //#
+            viewModel.ProcessKey(Key.D4, new ModifierKeys[] { ModifierKeys.Shift }); //$
+            viewModel.ProcessKey(Key.D5, new ModifierKeys[] { ModifierKeys.Shift }); //%
+            viewModel.ProcessKey(Key.D6, new ModifierKeys[] { ModifierKeys.Shift }); //^
+            viewModel.ProcessKey(Key.D7, new ModifierKeys[] { ModifierKeys.Shift }); //&
+            viewModel.ProcessKey(Key.D8, new ModifierKeys[] { ModifierKeys.Shift }); //*
+            viewModel.ProcessKey(Key.D9, new ModifierKeys[] { ModifierKeys.Shift }); //(
+            viewModel.ProcessKey(Key.D0, new ModifierKeys[] { ModifierKeys.Shift }); //)
+            viewModel.ProcessKey(Key.OemMinus, null); //-
+            viewModel.ProcessKey(Key.OemMinus, new ModifierKeys[] { ModifierKeys.Shift }); //_
+            viewModel.ProcessKey(Key.OemPlus, null); //=
+            viewModel.ProcessKey(Key.OemPlus, new ModifierKeys[] { ModifierKeys.Shift }); //+
+            viewModel.ProcessKey(Key.Oem4, null); //[
+            viewModel.ProcessKey(Key.Oem4, new ModifierKeys[] { ModifierKeys.Shift }); //{
+            viewModel.ProcessKey(Key.Oem6, null); //]
+            viewModel.ProcessKey(Key.Oem6, new ModifierKeys[] { ModifierKeys.Shift }); //}
+            viewModel.ProcessKey(Key.Oem5, null); //\
+            viewModel.ProcessKey(Key.Oem5, new ModifierKeys[] { ModifierKeys.Shift }); //|
+            viewModel.ProcessKey(Key.Oem1, null); //;
+            viewModel.ProcessKey(Key.Oem1, new ModifierKeys[] { ModifierKeys.Shift }); //:
+            viewModel.ProcessKey(Key.Oem7, null); //'
+            viewModel.ProcessKey(Key.Oem7, new ModifierKeys[] { ModifierKeys.Shift }); //"
+            viewModel.ProcessKey(Key.OemComma, null); //,
+            viewModel.ProcessKey(Key.OemComma, new ModifierKeys[] { ModifierKeys.Shift }); //<
+            viewModel.ProcessKey(Key.OemPeriod, null); //.
+            viewModel.ProcessKey(Key.OemPeriod, new ModifierKeys[] { ModifierKeys.Shift }); //>
+            viewModel.ProcessKey(Key.Oem2, null); ///
+            viewModel.ProcessKey(Key.Oem2, new ModifierKeys[] { ModifierKeys.Shift }); //?
+        }
+
         private void GivenUserTypesHotGarbageBackspaceBang()
         {
             viewModel.ProcessKey(Key.H, new ModifierKeys[] { ModifierKeys.Shift });
