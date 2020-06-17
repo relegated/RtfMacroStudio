@@ -54,10 +54,14 @@
                 <RibbonGroup Header="Run">
                     <RibbonButton x:Name="RibbonButtonRunMacro" Label="Run" Click="RibbonButtonRunMacro_Click"></RibbonButton>
                 </RibbonGroup>
+                <RibbonGroup Header="Record">
+                    <RibbonButton x:Name="RibbonButtonRecordMacro" Label="Record" Click="RibbonButtonRecordMacro_Click"></RibbonButton>
+                    <RibbonButton x:Name="RibbonButtonStopRecording" Label="Stop" Click="RibbonButtonStopRecording_Click"></RibbonButton>
+                </RibbonGroup>
             </RibbonTab>
         </Ribbon>
 
-        <RichTextBox x:Name="RichTextBoxMain" Margin="8,8,8,8" Grid.Column="1" Grid.Row="1" LostFocus="RichTextBoxMain_LostFocus">
+        <RichTextBox x:Name="RichTextBoxMain" Margin="8,8,8,8" Grid.Column="1" Grid.Row="1" LostFocus="RichTextBoxMain_LostFocus" KeyUp="RichTextBoxMain_KeyUp">
             <FlowDocument>
                 <Paragraph>
                     <Run Text="RichTextBox"/>

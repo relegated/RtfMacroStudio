@@ -136,5 +136,46 @@ namespace RtfMacroStudioViewModel
         {
             viewModel.RunMacro();
         }
+
+        private void RibbonButtonRecordMacro_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.RecordMacroStart();
+        }
+
+        private void RibbonButtonStopRecording_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.StopRecording();
+        }
+
+        private void RichTextBoxMain_KeyUp(object sender, KeyEventArgs e)
+        {
+            List<ModifierKeys> modifierKeys = GetListOfModifierKeys();
+
+            if (modifierKeys.Count == 0)
+            {
+                viewModel.ProcessKey(e.Key, null);
+            }
+            else
+            {
+                viewModel.ProcessKey(e.Key, modifierKeys.ToArray());
+            }
+        }
+
+        private List<ModifierKeys> GetListOfModifierKeys()
+        {
+            List<ModifierKeys> returnList = new List<ModifierKeys>();
+
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                returnList.Add(ModifierKeys.Control);
+            }
+
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                returnList.Add(ModifierKeys.Shift);
+            }
+
+            return returnList;
+        }
     }
 }
