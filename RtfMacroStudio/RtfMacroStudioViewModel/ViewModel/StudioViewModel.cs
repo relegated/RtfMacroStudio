@@ -77,7 +77,10 @@ namespace RtfMacroStudioViewModel.ViewModel
             {
                 if (value == false && isCapturingString == true)
                 {
-                    AddTextInputMacroTask(currentCaptureString);
+                    if (!string.IsNullOrEmpty(currentCaptureString))
+                    {
+                        AddTextInputMacroTask(currentCaptureString);
+                    }
                     currentCaptureString = string.Empty;
                 }
                 isCapturingString = value;

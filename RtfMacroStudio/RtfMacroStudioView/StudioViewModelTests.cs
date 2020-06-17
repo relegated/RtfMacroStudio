@@ -812,6 +812,16 @@ namespace RtfMacroStudioView
 
         }
 
+        [Test]
+        public void MacroRecordingDoesNotAddEmptyStringText()
+        {
+            viewModel.RecordMacroStart();
+
+            viewModel.StopRecording();
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+        }
+
         private void GivenUserTypesPunctuation()
         {
             viewModel.ProcessKey(Key.Oem3, null); //`
