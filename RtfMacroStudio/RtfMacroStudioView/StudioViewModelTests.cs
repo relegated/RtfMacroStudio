@@ -181,7 +181,7 @@ namespace RtfMacroStudioView
             
             GivenLinesOfTextAreAddedToCurrentRichText();
 
-            Assert.That(viewModel.CurrentRichText.ContentStart.GetOffsetToPosition(viewModel.CaretPosition) == 236);
+            Assert.That(viewModel.CurrentRichText.ContentStart.GetOffsetToPosition(viewModel.CaretPosition) == 238);
         }
 
         [Test]
@@ -820,6 +820,30 @@ namespace RtfMacroStudioView
             viewModel.StopRecording();
 
             Assert.That(viewModel.CurrentTaskList.Count == 0);
+        }
+
+        [Test]
+        public void ApplyCurrentFormattingAppliesCurrentFormatting()
+        {
+            viewModel.CurrentBoldFlag = true;
+            viewModel.CurrentColor = Colors.Red;
+            viewModel.CurrentTextSize = 28;
+            viewModel.CurrentUnderlineFlag = true;
+            viewModel.CurrentItalicFlag = true;
+            viewModel.SelectedFont = "Times New Roman";
+            viewModel.CurrentTextAlignment = TextAlignment.Justify;
+            //viewModel.ApplyCurrentFormatting();
+
+            viewModel.AddTextInputMacroTask("HotGarbage");
+            viewModel.RefreshCurrentFormatting();
+
+            Assert.That(viewModel.CurrentBoldFlag == true);
+            Assert.That(viewModel.CurrentColor == Colors.Red);
+            Assert.That(viewModel.CurrentTextSize == 28);
+            Assert.That(viewModel.CurrentUnderlineFlag == true);
+            Assert.That(viewModel.CurrentItalicFlag == true);
+            Assert.That(viewModel.SelectedFont == "Times New Roman");
+            Assert.That(viewModel.CurrentTextAlignment == TextAlignment.Justify);
         }
 
         private void GivenUserTypesPunctuation()

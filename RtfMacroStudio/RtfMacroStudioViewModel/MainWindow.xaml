@@ -37,10 +37,14 @@
                     <ComboBox x:Name="RibbonComboBoxSize" Width="40" IsReadOnly="False"
                               ItemsSource="{Binding AvailableTextSizes}"
                               SelectedItem="{Binding CurrentTextSize}"></ComboBox>
-                    <RibbonButton Label="Bold" KeyTip="B"></RibbonButton>
-                    <RibbonButton Label="Italic" KeyTip="I"></RibbonButton>
-                    <RibbonButton Label="Underline" KeyTip="U"></RibbonButton>
-                    <RibbonMenuButton Label="Color"></RibbonMenuButton>
+                    <RibbonToggleButton x:Name="ToggleButtonBold" IsChecked="{Binding CurrentBoldFlag}" Label="Bold" KeyTip="B"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonItalic" IsChecked="{Binding CurrentItalicFlag}" Label="Italic" KeyTip="I"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonUnderline" IsChecked="{Binding CurrentUnderlineFlag}" Label="Underline" KeyTip="U"></RibbonToggleButton>
+                    <RibbonMenuButton x:Name="RibbonMenuButtonColor" Label="Color"></RibbonMenuButton>
+                    <RibbonToggleButton x:Name="ToggleButtonAlignLeft" IsChecked="True" Label="Align Left" KeyTip="L" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonAlignCenter" Label="Align Center" KeyTip="E" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonAlignRight" Label="Align Right" KeyTip="R" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonAlignJustify" Label="Align Justify" KeyTip="J" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
                 </RibbonGroup>
 
             </RibbonTab>

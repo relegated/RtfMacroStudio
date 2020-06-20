@@ -36,23 +36,81 @@ namespace RtfMacroStudioViewModel.ViewModel
         public IMacroTaskEditPresenter MacroTaskEditPresenter { get; }
         public List<EFormatType> SupportedFormattingOptions { get; set; } = new List<EFormatType>();
         public List<string> AvailableFonts { get; set; } = new List<string>();
-        public string SelectedFont { get; set; } = string.Empty;
-        public bool CurrentBoldFlag { get; set; } = false;
-        public bool CurrentItalicFlag { get; set; } = false;
 
-      
+        private string selectedFont = "Segoe UI";
+        public string SelectedFont 
+        {
+            get => selectedFont;
+            set
+            {
+                selectedFont = value;
+                ApplyCurrentFormatting();
+            }
+        }
 
-        public bool CurrentUnderlineFlag { get; set; } = false;
-        public Color CurrentColor { get; set; } = Colors.Black;
+        private bool currentBoldFlag = false;
+        public bool CurrentBoldFlag 
+        {
+            get => currentBoldFlag;
+            set
+            {
+                currentBoldFlag = value;
+                ApplyCurrentFormatting();
+            }
+        }
+
+        private bool currentItalicFlag = false;
+        public bool CurrentItalicFlag 
+        { 
+            get => currentItalicFlag;
+            set
+            {
+                currentItalicFlag = value;
+                ApplyCurrentFormatting();
+            }
+        }
+
+        private TextAlignment currentTextAlignment = TextAlignment.Left;
+        public TextAlignment CurrentTextAlignment
+        {
+            get => currentTextAlignment;
+            set
+            {
+                currentTextAlignment = value;
+                ApplyCurrentFormatting();
+            }
+        }
+
+        private bool currentUnderlineFlag = false;
+        public bool CurrentUnderlineFlag 
+        {
+            get => currentUnderlineFlag;
+            set
+            {
+                currentUnderlineFlag = value;
+                ApplyCurrentFormatting();
+            } 
+        }
+
+        private Color currentColor = Colors.Black;
+        public Color CurrentColor
+        { 
+            get => currentColor; 
+            set
+            {
+                currentColor = value;
+                ApplyCurrentFormatting();
+            }
+        }
+        
         public MacroTask MacroTaskInEdit { get; set; }
 
-        private double currentTextSize;
         private string currentCaptureString;
 
+        private double currentTextSize = 12;
         public double CurrentTextSize 
         {
-            get
-            { return currentTextSize; }
+            get => currentTextSize; 
             set
             {
                 var newValue = value;
@@ -61,6 +119,7 @@ namespace RtfMacroStudioViewModel.ViewModel
                 if (newValue > 128)
                     newValue = 128;
                 currentTextSize = newValue;
+                ApplyCurrentFormatting();
             }
         }
 
@@ -543,14 +602,28 @@ namespace RtfMacroStudioViewModel.ViewModel
             var selectionRange = new TextRange(RichTextBoxControl.Selection.Start, RichTextBoxControl.Selection.End);
 
             //Read formatting
-            CurrentBoldFlag = (FontWeight)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontWeightProperty) == FontWeights.Bold;
-            CurrentItalicFlag = (FontStyle)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontStyleProperty) == FontStyles.Italic;
+            currentBoldFlag = (FontWeight)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontWeightProperty) == FontWeights.Bold;
+            currentItalicFlag = (FontStyle)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontStyleProperty) == FontStyles.Italic;
             var selectedProperty = (TextDecorationCollection)selectionRange.GetPropertyValue(TextBlock.TextDecorationsProperty);
-            CurrentUnderlineFlag = selectedProperty.Where(x => ((TextDecoration)x).Location == TextDecorationLocation.Underline).ToList().Count > 0;
-            SelectedFont = ((FontFamily)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontFamilyProperty)).Source;
+            currentUnderlineFlag = selectedProperty.Where(x => ((TextDecoration)x).Location == TextDecorationLocation.Underline).ToList().Count > 0;
+            selectedFont = ((FontFamily)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontFamilyProperty)).Source;
             var currentBrush = (SolidColorBrush)RichTextBoxControl.Selection.GetPropertyValue(TextElement.ForegroundProperty);
-            CurrentColor = GetColorFromBrush(currentBrush);
-            CurrentTextSize = (double)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontSizeProperty);
+            currentColor = GetColorFromBrush(currentBrush);
+            currentTextSize = (double)RichTextBoxControl.Selection.GetPropertyValue(TextElement.FontSizeProperty);
+
+            var currentBlock = RichTextBoxControl.Document.Blocks
+                .Where(x => x.ContentStart.CompareTo(RichTextBoxControl.CaretPosition) == -1 &&
+                x.ContentEnd.CompareTo(RichTextBoxControl.CaretPosition) == 1)
+                .FirstOrDefault();
+            Paragraph currentParagraph = currentBlock as Paragraph;
+            if (currentParagraph == null)
+            {
+                currentTextAlignment = TextAlignment.Left;
+            }
+            else
+            {
+                currentTextAlignment = currentParagraph.TextAlignment;
+            }
 
             //Undo select
             EditingCommandHelper.MoveLeftByCharacter(RichTextBoxControl);
@@ -972,6 +1045,63 @@ namespace RtfMacroStudioViewModel.ViewModel
                 keyInput == Key.Down ||
                 keyInput == Key.Home ||
                 keyInput == Key.End);
+        }
+
+        public void ApplyCurrentFormatting()
+        {
+            if (RichTextBoxControl.Selection.IsEmpty)
+            {
+                if (RichTextBoxControl.Selection.Start.Paragraph == null)
+                {
+                    ApplySettingsToNewParagraph();
+                }
+                else
+                {
+                    Block currentBlock = RichTextBoxControl.Document.Blocks
+                        .Where(x => x.ContentStart.CompareTo(RichTextBoxControl.CaretPosition) == -1 && x.ContentEnd.CompareTo(RichTextBoxControl.CaretPosition) == 1)
+                        .FirstOrDefault();
+                    if (currentBlock != null)
+                    {
+                        Paragraph currentParagraph = currentBlock as Paragraph;
+                        ApplySettingsToExistingParagraph(currentParagraph);
+                    }
+                    else if (RichTextBoxControl.Document.Blocks.FirstBlock.ContentStart.CompareTo(RichTextBoxControl.Document.Blocks.LastBlock.ContentStart) == 0)
+                    {
+                        Paragraph currentParagraph = RichTextBoxControl.Document.Blocks.FirstBlock as Paragraph;
+                        ApplySettingsToExistingParagraph(currentParagraph);
+                    }
+                }
+            }
+
+            RichTextBoxControl.Focus();
+        }
+
+        private void ApplySettingsToNewParagraph()
+        {
+            Paragraph newParagraph = new Paragraph();
+            newParagraph.FontFamily = new FontFamily(SelectedFont);
+            newParagraph.FontSize = currentTextSize;
+            newParagraph.FontStyle = (CurrentItalicFlag ? FontStyles.Italic : FontStyles.Normal);
+            newParagraph.FontWeight = (CurrentBoldFlag ? FontWeights.Bold : FontWeights.Normal);
+            newParagraph.TextDecorations = (CurrentUnderlineFlag ? TextDecorations.Underline : null);
+            newParagraph.Foreground = new SolidColorBrush(CurrentColor);
+            newParagraph.TextAlignment = CurrentTextAlignment;
+            RichTextBoxControl.Document.Blocks.Add(newParagraph);
+        }
+
+        private void ApplySettingsToExistingParagraph(Paragraph currentParagraph)
+        {
+            Run newRun = new Run();
+            newRun.FontFamily = new FontFamily(SelectedFont);
+            newRun.FontSize = currentTextSize;
+            newRun.FontStyle = (CurrentItalicFlag ? FontStyles.Italic : FontStyles.Normal);
+            newRun.FontWeight = (CurrentBoldFlag ? FontWeights.Bold : FontWeights.Normal);
+            newRun.TextDecorations = (CurrentUnderlineFlag ? TextDecorations.Underline : null);
+            newRun.Foreground = new SolidColorBrush(CurrentColor);
+            currentParagraph.TextAlignment = CurrentTextAlignment;
+            currentParagraph.Inlines.Add(newRun);
+            RichTextBoxControl.CaretPosition = newRun.ElementStart;
+            CaretPosition = RichTextBoxControl.CaretPosition;
         }
     }
 }

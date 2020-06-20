@@ -177,5 +177,48 @@ namespace RtfMacroStudioViewModel
 
             return returnList;
         }
+
+        private void ToggleButtonAlignment_Checked(object sender, RoutedEventArgs e)
+        {
+            if (ToggleButtonAlignLeft == null || 
+                ToggleButtonAlignCenter == null || 
+                ToggleButtonAlignRight == null || 
+                ToggleButtonAlignJustify == null)
+            {
+                return;
+            }
+
+            var buttonName = ((RibbonToggleButton)sender).Name;
+
+
+            if (buttonName == nameof(ToggleButtonAlignLeft))
+            {
+                ToggleButtonAlignCenter.IsChecked = false;
+                ToggleButtonAlignRight.IsChecked = false;
+                ToggleButtonAlignJustify.IsChecked = false;
+                viewModel.CurrentTextAlignment = TextAlignment.Left;
+            }
+            else if (buttonName == nameof(ToggleButtonAlignCenter))
+            {
+                ToggleButtonAlignLeft.IsChecked = false;
+                ToggleButtonAlignRight.IsChecked = false;
+                ToggleButtonAlignJustify.IsChecked = false;
+                viewModel.CurrentTextAlignment = TextAlignment.Center;
+            }
+            else if (buttonName == nameof(ToggleButtonAlignRight))
+            {
+                ToggleButtonAlignLeft.IsChecked = false;
+                ToggleButtonAlignCenter.IsChecked = false;
+                ToggleButtonAlignJustify.IsChecked = false;
+                viewModel.CurrentTextAlignment = TextAlignment.Right;
+            }
+            else if (buttonName == nameof(ToggleButtonAlignJustify))
+            {
+                ToggleButtonAlignLeft.IsChecked = false;
+                ToggleButtonAlignCenter.IsChecked = false;
+                ToggleButtonAlignRight.IsChecked = false;
+                viewModel.CurrentTextAlignment = TextAlignment.Justify;
+            }
+        }
     }
 }
