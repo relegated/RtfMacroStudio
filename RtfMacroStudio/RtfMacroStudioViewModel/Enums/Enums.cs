@@ -9,6 +9,13 @@ namespace RtfMacroStudioViewModel.Enums
 {
     public class Enums
     {
+        public enum ERunPresenterOption
+        {
+            Once,
+            NTimes,
+            End
+        }
+
         public enum EMacroTaskType
         {
             Undefined=0,

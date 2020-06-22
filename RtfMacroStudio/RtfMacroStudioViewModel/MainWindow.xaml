@@ -40,7 +40,7 @@
                     <RibbonToggleButton x:Name="ToggleButtonBold" IsChecked="{Binding CurrentBoldFlag}" Label="Bold" KeyTip="B"></RibbonToggleButton>
                     <RibbonToggleButton x:Name="ToggleButtonItalic" IsChecked="{Binding CurrentItalicFlag}" Label="Italic" KeyTip="I"></RibbonToggleButton>
                     <RibbonToggleButton x:Name="ToggleButtonUnderline" IsChecked="{Binding CurrentUnderlineFlag}" Label="Underline" KeyTip="U"></RibbonToggleButton>
-                    <RibbonMenuButton x:Name="RibbonMenuButtonColor" Label="Color"></RibbonMenuButton>
+                    <RibbonButton x:Name="RibbonButtonColor" Label="Color" Click="RibbonButtonColor_Click"></RibbonButton>
                     <RibbonToggleButton x:Name="ToggleButtonAlignLeft" IsChecked="True" Label="Align Left" KeyTip="L" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
                     <RibbonToggleButton x:Name="ToggleButtonAlignCenter" Label="Align Center" KeyTip="E" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
                     <RibbonToggleButton x:Name="ToggleButtonAlignRight" Label="Align Right" KeyTip="R" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>

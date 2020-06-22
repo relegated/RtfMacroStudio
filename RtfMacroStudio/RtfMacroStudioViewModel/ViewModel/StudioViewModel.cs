@@ -25,7 +25,6 @@ namespace RtfMacroStudioViewModel.ViewModel
         public List<MacroTask> CurrentTaskList { get; set; } = new List<MacroTask>();
 
         public List<ESpecialKey> SupportedSpecialKeys { get; set; } = new List<ESpecialKey>();
-        public TextPointer CaretPosition { get; set; }
 
         public delegate void NotifyPropertyChanged(string PropertyName);
 
@@ -34,11 +33,12 @@ namespace RtfMacroStudioViewModel.ViewModel
         public RichTextBox RichTextBoxControl { get; set; }
         public IEditingCommandHelper EditingCommandHelper { get; }
         public IMacroTaskEditPresenter MacroTaskEditPresenter { get; }
+        public IMacroRunPresenter MacroRunPresenter { get; }
         public List<EFormatType> SupportedFormattingOptions { get; set; } = new List<EFormatType>();
         public List<string> AvailableFonts { get; set; } = new List<string>();
 
         private string selectedFont = "Segoe UI";
-        public string SelectedFont 
+        public string SelectedFont
         {
             get => selectedFont;
             set
@@ -49,7 +49,7 @@ namespace RtfMacroStudioViewModel.ViewModel
         }
 
         private bool currentBoldFlag = false;
-        public bool CurrentBoldFlag 
+        public bool CurrentBoldFlag
         {
             get => currentBoldFlag;
             set
@@ -60,8 +60,8 @@ namespace RtfMacroStudioViewModel.ViewModel
         }
 
         private bool currentItalicFlag = false;
-        public bool CurrentItalicFlag 
-        { 
+        public bool CurrentItalicFlag
+        {
             get => currentItalicFlag;
             set
             {
@@ -82,35 +82,45 @@ namespace RtfMacroStudioViewModel.ViewModel
         }
 
         private bool currentUnderlineFlag = false;
-        public bool CurrentUnderlineFlag 
+        public bool CurrentUnderlineFlag
         {
             get => currentUnderlineFlag;
             set
             {
                 currentUnderlineFlag = value;
                 ApplyCurrentFormatting();
-            } 
+            }
         }
 
         private Color currentColor = Colors.Black;
         public Color CurrentColor
-        { 
-            get => currentColor; 
+        {
+            get => currentColor;
             set
             {
                 currentColor = value;
                 ApplyCurrentFormatting();
             }
         }
-        
+
+        public DrawingImage ColorImageDrawing
+        {
+            get
+            {
+                RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(0, 0, 25, 25));
+                GeometryDrawing geometryDrawing = new GeometryDrawing(new SolidColorBrush(currentColor), new Pen(), rectangleGeometry);
+                return new DrawingImage(geometryDrawing);
+            }
+        }
+
         public MacroTask MacroTaskInEdit { get; set; }
 
         private string currentCaptureString;
 
         private double currentTextSize = 12;
-        public double CurrentTextSize 
+        public double CurrentTextSize
         {
-            get => currentTextSize; 
+            get => currentTextSize;
             set
             {
                 var newValue = value;
@@ -129,7 +139,7 @@ namespace RtfMacroStudioViewModel.ViewModel
         public bool IsCurrentlyRecording { get; set; } = false;
 
         private bool isCapturingString = false;
-        public bool IsCapturingString 
+        public bool IsCapturingString
         {
             get => isCapturingString;
             set
@@ -146,13 +156,33 @@ namespace RtfMacroStudioViewModel.ViewModel
             }
         }
 
+        public int NumberOfLinesInDocument
+        {
+            get
+            {
+                int lineCount = 0;
 
+                foreach (Paragraph block in RichTextBoxControl.Document.Blocks)
+                {
+                    foreach (var inline in block.Inlines)
+                    {
+                        if (inline is LineBreak)
+                        {
+                            lineCount++;
+                        }
+                    }
+                    lineCount++;
+                }
+
+                return lineCount;
+            }
+        }
 
         #endregion
 
         #region Constructor
 
-        public StudioViewModel(IEditingCommandHelper editingCommandHelper, IMacroTaskEditPresenter macroTaskEditPresenter)
+        public StudioViewModel(IEditingCommandHelper editingCommandHelper, IMacroTaskEditPresenter macroTaskEditPresenter, IMacroRunPresenter macroRunPresenter)
         {
             RichTextBoxControl = new RichTextBox();
             GetAvailableFonts();
@@ -161,9 +191,11 @@ namespace RtfMacroStudioViewModel.ViewModel
             CurrentTextSize = 12;
             SupportedSpecialKeys = Enum.GetValues(typeof(ESpecialKey)).Cast<ESpecialKey>().ToList();
             SetupSupportedFormatTypes();
-            CaretPosition = CurrentRichText.ContentStart;
+            CurrentRichText.Blocks.Clear();
+            RichTextBoxControl.Document.Blocks.Clear();
             EditingCommandHelper = editingCommandHelper;
             MacroTaskEditPresenter = macroTaskEditPresenter;
+            MacroRunPresenter = macroRunPresenter;
         }
 
         public void EditMacroTaskBegin(MacroTask macroTask)
@@ -253,14 +285,26 @@ namespace RtfMacroStudioViewModel.ViewModel
         private void SetupSupportedFormatTypes()
         {
             SupportedFormattingOptions = Enum.GetValues(typeof(EFormatType)).Cast<EFormatType>().ToList();
-            //SupportedFormattingOptions.Remove(EFormatType.Color);
-            //SupportedFormattingOptions.Remove(EFormatType.Font);
-            //SupportedFormattingOptions.Remove(EFormatType.TextSize);
         }
 
         #endregion
 
-        public void RunMacro()
+        public virtual void RunMacro(int numberOfTimes)
+        {
+            for (int i = 0; i < numberOfTimes; i++)
+            {
+                RunMacro();
+            }
+        }
+        
+        public virtual void RunMacroToEndOfText()
+        {
+            int currentNumberOfLines = NumberOfLinesInDocument;
+
+            RunMacro(currentNumberOfLines);
+        }
+
+        public virtual void RunMacro()
         {
             foreach (var task in CurrentTaskList)
             {
@@ -353,110 +397,132 @@ namespace RtfMacroStudioViewModel.ViewModel
         private void ProcessSpecialKey(ESpecialKey specialKey)
         {
             RichTextBoxControl.Document = CurrentRichText;
-            RichTextBoxControl.CaretPosition = CaretPosition;
 
             switch (specialKey)
             {
                 case ESpecialKey.LeftArrow:
                     EditingCommandHelper.MoveLeftByCharacter(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.RightArrow:
                     EditingCommandHelper.MoveRightByCharacter(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.UpArrow:
                     EditingCommandHelper.MoveUpByLine(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.DownArrow:
                     EditingCommandHelper.MoveDownByLine(RichTextBoxControl);
                     EditingCommands.MoveDownByLine.Execute(null, RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.Home:
                     EditingCommandHelper.MoveToLineStart(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.End:
                     EditingCommandHelper.MoveToLineEnd(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ShiftHome:
                     EditingCommandHelper.SelectToLineStart(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ShiftEnd:
                     EditingCommandHelper.SelectToLineEnd(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ControlHome:
                     EditingCommandHelper.MoveToDocumentStart(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ControlEnd:
                     EditingCommandHelper.MoveToDocumentEnd(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ControlShiftHome:
                     EditingCommandHelper.SelectToDocumentStart(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ControlShiftEnd:
                     EditingCommandHelper.SelectToDocumentEnd(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.Delete:
                     EditingCommandHelper.Delete(RichTextBoxControl);
+                    
                     break;
                 case ESpecialKey.Backspace:
                     EditingCommandHelper.Backspace(RichTextBoxControl);
+                    
                     break;
                 case ESpecialKey.Enter:
+                    int numOfParagraphs = RichTextBoxControl.Document.Blocks.Count;
                     EditingCommandHelper.EnterParagraphBreak(RichTextBoxControl);
+
+                    //sometimes, the first EnterParagraphBreak doesn't add a new paragraph
+                    if (numOfParagraphs == RichTextBoxControl.Document.Blocks.Count)
+                    {
+                        Paragraph paragraph = new Paragraph();
+                        Run run = new Run(string.Empty);
+                        paragraph.Inlines.Add(run);
+                        RichTextBoxControl.Document.Blocks.Add(paragraph);
+                        RichTextBoxControl.CaretPosition = RichTextBoxControl.Document.ContentEnd;
+                    }
+
+                    
                     break;
                 case ESpecialKey.ShiftLeftArrow:
                     EditingCommandHelper.SelectLeftByCharacter(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ShiftRightArrow:
                     EditingCommandHelper.SelectRightByCharacter(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ShiftUpArrow:
                     EditingCommandHelper.SelectUpByLine(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ShiftDownArrow:
                     EditingCommandHelper.SelectDownByLine(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ControlLeftArrow:
                     EditingCommandHelper.MoveLeftByWord(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ControlRightArrow:
                     EditingCommandHelper.MoveRightByWord(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ControlShiftLeftArrow:
                     EditingCommandHelper.SelectLeftByWord(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 case ESpecialKey.ControlShiftRightArrow:
                     EditingCommandHelper.SelectRightByWord(RichTextBoxControl);
-                    CaretPosition = RichTextBoxControl.CaretPosition;
+                    
                     break;
                 default:
                     break;
             }
+
+            CurrentRichText = RichTextBoxControl.Document;
         }
 
 
         private void ProcessText(string line)
         {
+            if (RichTextBoxControl.Selection.IsEmpty == false)
+            {
+                ProcessSpecialKey(ESpecialKey.Delete);
+            }
+            
             RichTextBoxControl.CaretPosition.InsertTextInRun(line);
             UpdateCaretLocationBy(line.Length);
+            CurrentRichText = RichTextBoxControl.Document;
         }
 
         private void UpdateCaretLocationBy(int length)
@@ -473,7 +539,7 @@ namespace RtfMacroStudioViewModel.ViewModel
                 RichTextBoxControl.CaretPosition = newLocation;
             }
             
-            CaretPosition = RichTextBoxControl.CaretPosition;
+           
         }
 
         public void AddTextInputMacroTask(string textInput)
@@ -870,6 +936,27 @@ namespace RtfMacroStudioViewModel.ViewModel
             return string.Empty;
         }
 
+        public void RunMacroPresenter()
+        {
+            if (MacroRunPresenter.ShowRunOptionWindow())
+            {
+                switch (MacroRunPresenter.Option)
+                {
+                    case ERunPresenterOption.Once:
+                        RunMacro();
+                        break;
+                    case ERunPresenterOption.NTimes:
+                        RunMacro(MacroRunPresenter.N);
+                        break;
+                    case ERunPresenterOption.End:
+                        RunMacroToEndOfText();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
         private void CreateFormatKeyTask(Key keyInput)
         {
             if (keyInput == Key.B)
@@ -1101,7 +1188,9 @@ namespace RtfMacroStudioViewModel.ViewModel
             currentParagraph.TextAlignment = CurrentTextAlignment;
             currentParagraph.Inlines.Add(newRun);
             RichTextBoxControl.CaretPosition = newRun.ElementStart;
-            CaretPosition = RichTextBoxControl.CaretPosition;
+            
         }
+
+        
     }
 }

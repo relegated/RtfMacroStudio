@@ -17,6 +17,7 @@ using System.Windows.Controls.Ribbon;
 using RtfMacroStudioViewModel.Controls;
 using static RtfMacroStudioViewModel.Enums.Enums;
 using RtfMacroStudioViewModel.Enums;
+using System.Windows.Forms;
 
 namespace RtfMacroStudioViewModel
 {
@@ -43,10 +44,12 @@ namespace RtfMacroStudioViewModel
             CreateSpecialKeyMenuItems();
             CreateFormatMenuItems();
 
-
             viewModel.RichTextBoxControl = RichTextBoxMain;
             RichTextBoxMain.Document = viewModel.CurrentRichText;
             RichTextBoxMain.TextChanged += RichTextBoxMain_TextChanged;
+
+            RibbonButtonColor.LargeImageSource = viewModel.ColorImageDrawing;
+            RibbonButtonColor.SmallImageSource = viewModel.ColorImageDrawing;
 
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
@@ -134,7 +137,7 @@ namespace RtfMacroStudioViewModel
 
         private void RibbonButtonRunMacro_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.RunMacro();
+            viewModel.RunMacroPresenter();
         }
 
         private void RibbonButtonRecordMacro_Click(object sender, RoutedEventArgs e)
@@ -147,7 +150,7 @@ namespace RtfMacroStudioViewModel
             viewModel.StopRecording();
         }
 
-        private void RichTextBoxMain_KeyUp(object sender, KeyEventArgs e)
+        private void RichTextBoxMain_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             List<ModifierKeys> modifierKeys = GetListOfModifierKeys();
 
@@ -218,6 +221,17 @@ namespace RtfMacroStudioViewModel
                 ToggleButtonAlignCenter.IsChecked = false;
                 ToggleButtonAlignRight.IsChecked = false;
                 viewModel.CurrentTextAlignment = TextAlignment.Justify;
+            }
+        }
+
+        private void RibbonButtonColor_Click(object sender, RoutedEventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                viewModel.CurrentColor = Color.FromRgb(colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
+                RibbonButtonColor.LargeImageSource = viewModel.ColorImageDrawing;
+                RibbonButtonColor.SmallImageSource = viewModel.ColorImageDrawing;
             }
         }
     }

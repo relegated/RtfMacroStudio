@@ -61,6 +61,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controllers\MacroStudioController.cs" />
+    <Compile Include="Controls\MacroRunPresenterWindow.xaml.cs">
+      <DependentUpon>MacroRunPresenterWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\MacroTaskControl.xaml.cs">
       <DependentUpon>MacroTaskControl.xaml</DependentUpon>
     </Compile>
@@ -72,14 +75,21 @@
     </Compile>
     <Compile Include="Enums\Enums.cs" />
     <Compile Include="Interfaces\IEditingCommandHelper.cs" />
+    <Compile Include="Interfaces\IMacroRunPresenter.cs" />
     <Compile Include="Interfaces\IMacroTaskEditPresenter.cs" />
     <Compile Include="Models\MacroTask.cs" />
     <Compile Include="Helpers\EditingCommandHelper.cs" />
+    <Compile Include="Presenters\MacroRunPresenter.cs" />
     <Compile Include="Presenters\MacroTaskEditPresenter.cs" />
     <Compile Include="Splash\SplashScreen.xaml.cs">
       <DependentUpon>SplashScreen.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\StudioViewModel.cs" />
+    <Compile Include="ViewModel\StudioViewModelMock.cs" />
+    <Page Include="Controls\MacroRunPresenterWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\MacroTaskControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

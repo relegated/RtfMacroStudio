@@ -6,6 +6,7 @@ using RtfMacroStudioViewModel.Interfaces;
 using RtfMacroStudioViewModel.Models;
 using RtfMacroStudioViewModel.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows;
@@ -20,19 +21,30 @@ namespace RtfMacroStudioView
     [TestFixture, RequiresSTA]
     public class StudioViewModelTests
     {
-        StudioViewModel viewModel;
+        StudioViewModelMock viewModel;
         string propertyChangedText;
         Mock<IEditingCommandHelper> mockEditingCommandHelper;
         Mock<IMacroTaskEditPresenter> mockTaskEditPresenter;
+        Mock<IMacroRunPresenter> mockRunPresenter;
 
         [SetUp]
         public void Setup()
         {
             mockTaskEditPresenter = new Mock<IMacroTaskEditPresenter>();
             mockEditingCommandHelper = new Mock<IEditingCommandHelper>();
-            viewModel = new StudioViewModel(mockEditingCommandHelper.Object, mockTaskEditPresenter.Object);
+            mockRunPresenter = new Mock<IMacroRunPresenter>();
+            viewModel = new StudioViewModelMock(mockEditingCommandHelper.Object, mockTaskEditPresenter.Object, mockRunPresenter.Object);
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
             propertyChangedText = string.Empty;
+            mockEditingCommandHelper.Setup(m => m.SelectRightByWord(It.IsAny<RichTextBox>()))
+                .Callback(() => EditingCommands.SelectRightByWord.Execute(null, viewModel.RichTextBoxControl));
+            mockEditingCommandHelper.Setup(m => m.Delete(It.IsAny<RichTextBox>()))
+                .Callback(() => EditingCommands.Delete.Execute(null, viewModel.RichTextBoxControl));
+            mockEditingCommandHelper.Setup(m => m.MoveToDocumentStart(It.IsAny<RichTextBox>()))
+                .Callback(() => EditingCommands.MoveToDocumentStart.Execute(null, viewModel.RichTextBoxControl));
+            mockEditingCommandHelper.Setup(m => m.MoveDownByLine(It.IsAny<RichTextBox>()))
+                .Callback(() => EditingCommands.MoveDownByLine.Execute(null, viewModel.RichTextBoxControl));
+            viewModel.NumTimesRunMacroCalled = 0;
         }
 
         [Test]
@@ -44,7 +56,7 @@ namespace RtfMacroStudioView
         [Test]
         public void TextPositionBeginsAtDocumentHome()
         {
-            Assert.That(viewModel.CaretPosition.CompareTo(viewModel.CurrentRichText.ContentStart) == 0);
+            Assert.That(viewModel.RichTextBoxControl.CaretPosition.CompareTo(viewModel.RichTextBoxControl.Document.ContentStart) == 0);
         }
 
         [Test]
@@ -54,7 +66,6 @@ namespace RtfMacroStudioView
 
             Assert.That(propertyChangedText == nameof(viewModel.CurrentTaskList));
             Assert.That(viewModel.CurrentTaskList.Count == 1);
-            //Assert.That(((Run)viewModel.CurrentTaskList[0].Line.Inlines.FirstInline).Text == "text to add");
             Assert.That(viewModel.CurrentTaskList[0].Line == "text to add");
         }
 
@@ -177,11 +188,13 @@ namespace RtfMacroStudioView
         [Test]
         public void TextInputChangesCaratPosition()
         {
-            Assert.That(viewModel.CurrentRichText.ContentStart.GetOffsetToPosition(viewModel.CaretPosition) == 0);
+            Assert.That(viewModel.RichTextBoxControl.Document.ContentStart.GetOffsetToPosition(viewModel.RichTextBoxControl.CaretPosition) == 0);
             
             GivenLinesOfTextAreAddedToCurrentRichText();
 
-            Assert.That(viewModel.CurrentRichText.ContentStart.GetOffsetToPosition(viewModel.CaretPosition) == 238);
+            var offset = viewModel.RichTextBoxControl.Document.ContentStart.GetOffsetToPosition(viewModel.RichTextBoxControl.CaretPosition);
+
+            Assert.That(offset == 236);
         }
 
         [Test]
@@ -832,7 +845,6 @@ namespace RtfMacroStudioView
             viewModel.CurrentItalicFlag = true;
             viewModel.SelectedFont = "Times New Roman";
             viewModel.CurrentTextAlignment = TextAlignment.Justify;
-            //viewModel.ApplyCurrentFormatting();
 
             viewModel.AddTextInputMacroTask("HotGarbage");
             viewModel.RefreshCurrentFormatting();
@@ -844,6 +856,212 @@ namespace RtfMacroStudioView
             Assert.That(viewModel.CurrentItalicFlag == true);
             Assert.That(viewModel.SelectedFont == "Times New Roman");
             Assert.That(viewModel.CurrentTextAlignment == TextAlignment.Justify);
+        }
+
+        [Test]
+        public void ProcessingTextWhenSomethingIsSelectedDoesADeleteFirst()
+        {
+            viewModel.AddTextInputMacroTask("Hello world!");
+            viewModel.RunMacro();
+            viewModel.ClearAllTasks();
+            viewModel.RichTextBoxControl.CaretPosition = viewModel.RichTextBoxControl.Document.ContentStart;
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlShiftRightArrow);
+            viewModel.RunMacro();
+            viewModel.ClearAllTasks();
+            Assert.That(viewModel.RichTextBoxControl.Selection.Text == "Hello ");
+
+            viewModel.AddTextInputMacroTask("Goodbye ");
+            viewModel.RunMacro();
+            var line = GetTextFromBlock(0);
+            Assert.That(line == "Goodbye world!");
+        }
+
+        [Test]
+        public void NumberOfLinesReturnsCorrectly()
+        {
+            GivenFiveLinesEnteredViaParagraphsAndLineBreaks();
+
+            Assert.That(viewModel.NumberOfLinesInDocument == 5);
+        }
+
+        [Test]
+        public void RunMacroNTimesRunsMacroNTimes()
+        {
+            GivenARepeatableTask(); //Hello world! and <Enter> 5 times, the last enter makes a sixth line
+
+            viewModel.RunMacro(5);
+
+            Assert.That(viewModel.NumberOfLinesInDocument == 6);
+        }
+
+        [Test]
+        public void RunMacroUntilEndOfFileRunsMacroForEachLine()
+        {
+            GivenSixLinesAndCursorIsAtHome();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlShiftRightArrow);
+            viewModel.AddTextInputMacroTask("Goodbye ");
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Home);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.DownArrow);
+
+            viewModel.RunMacroToEndOfText();
+
+            var line0 = GetTextFromBlock(0);
+            var line1 = GetTextFromBlock(1);
+            var line2 = GetTextFromBlock(2);
+            var line3 = GetTextFromBlock(3);
+            var line4 = GetTextFromBlock(4);
+            var line5 = GetTextFromBlock(5);
+
+            Assert.That(line0 == "Goodbye world!");
+            Assert.That(line1 == "Goodbye world!");
+            Assert.That(line2 == "Goodbye world!");
+            Assert.That(line3 == "Goodbye world!");
+            Assert.That(line4 == "Goodbye world!");
+            Assert.That(line5 == "Goodbye ");
+        }
+
+        [Test]
+        public void MacroRunPresenterDisplays()
+        {
+            viewModel.RunMacroPresenter();
+
+            mockRunPresenter.Verify(m => m.ShowRunOptionWindow(), Times.Once);
+        }
+
+        [Test]
+        public void NoTasksRunIfMacroRunPresenterIsCancelled()
+        {
+            GivenARepeatableTask();
+            
+            GivenUserWillCancelRunPresenter();
+
+            viewModel.RunMacroPresenter();
+
+            Assert.That(viewModel.NumTimesRunMacroCalled == 0);
+        }
+
+        [Test]
+        public void TaskWillRunOnceIfOnceIsChosenFromMacroRunPresenter()
+        {
+            GivenARepeatableTask();
+
+            GivenUserWillChooseRunOnceFromRunPresenter();
+
+            viewModel.RunMacroPresenter();
+
+            Assert.That(viewModel.NumTimesRunMacroCalled == 1);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        public void TaskWillRunNTimesIfChosenFromMacroRunPresenter(int n)
+        {
+            GivenARepeatableTask();
+
+            GivenUserWillChoseNFromRunPresenter(n);
+
+            viewModel.RunMacroPresenter();
+
+            Assert.That(viewModel.NumTimesRunMacroCalled == n);
+        }
+
+        [Test]
+        public void TaskWillRunUntilEndOfFileIfChoseFromMacroRunPresenter()
+        {
+            GivenSixLinesAndCursorIsAtHome();
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Home);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ShiftEnd);
+            viewModel.AddFormatMacroTask("Italic");
+
+            GivenUserWillChooseEndOfFileFromRunPresenter();
+
+            viewModel.RunMacroPresenter();
+
+            Assert.That(viewModel.NumTimesRunMacroCalled == 6);
+        }
+
+        private void GivenUserWillChooseEndOfFileFromRunPresenter()
+        {
+            mockRunPresenter.Setup(m => m.ShowRunOptionWindow()).Returns(true);
+            mockRunPresenter.Setup(m => m.Option).Returns(ERunPresenterOption.End);
+        }
+
+        private void GivenUserWillChoseNFromRunPresenter(int n)
+        {
+            mockRunPresenter.Setup(m => m.ShowRunOptionWindow()).Returns(true);
+            mockRunPresenter.Setup(m => m.N).Returns(n);
+            mockRunPresenter.Setup(m => m.Option).Returns(ERunPresenterOption.NTimes);
+        }
+
+        private void GivenUserWillChooseRunOnceFromRunPresenter()
+        {
+            mockRunPresenter.Setup(m => m.ShowRunOptionWindow()).Returns(true);
+            mockRunPresenter.Setup(m => m.Option).Returns(ERunPresenterOption.Once);
+        }
+
+        private void GivenUserWillCancelRunPresenter()
+        {
+            mockRunPresenter.Setup(m => m.ShowRunOptionWindow()).Returns(false);
+        }
+
+        private string GetTextFromBlock(int blockIndex)
+        {
+            string returnValue = string.Empty;
+            List<Block> blockList = viewModel.RichTextBoxControl.Document.Blocks.ToList();
+            
+            Paragraph p = blockList[blockIndex] as Paragraph;
+            foreach (Run r in p.Inlines)
+            {
+                returnValue += r.Text;
+            }
+
+            return returnValue;
+        }
+
+        private void GivenSixLinesAndCursorIsAtHome()
+        {
+            GivenARepeatableTask();
+            viewModel.RunMacro(5);
+            viewModel.ClearAllTasks();
+            viewModel.NumTimesRunMacroCalled = 0;
+            viewModel.RichTextBoxControl.CaretPosition = viewModel.RichTextBoxControl.Document.ContentStart;
+        }
+
+        private void GivenARepeatableTask()
+        {
+            viewModel.AddTextInputMacroTask("Hello world!");
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Enter);
+        }
+
+        private void GivenFiveLinesEnteredViaParagraphsAndLineBreaks()
+        {
+            Paragraph p1 = new Paragraph();
+            Run r1 = new Run("1");
+            p1.Inlines.Add(r1);
+
+            Paragraph p2 = new Paragraph();
+            Run r2 = new Run("2");
+            p2.Inlines.Add(r2);
+
+            Paragraph p3 = new Paragraph();
+            Run r3 = new Run("3");
+            p3.Inlines.Add(r3);
+
+            Paragraph p4 = new Paragraph();
+            Run r4 = new Run("4");
+            LineBreak lb = new LineBreak();
+            Run r5 = new Run("5");
+            p4.Inlines.Add(r4);
+            p4.Inlines.Add(lb);
+            p4.Inlines.Add(r5);
+
+            viewModel.RichTextBoxControl.Document.Blocks.Clear();
+            viewModel.RichTextBoxControl.Document.Blocks.Add(p1);
+            viewModel.RichTextBoxControl.Document.Blocks.Add(p2);
+            viewModel.RichTextBoxControl.Document.Blocks.Add(p3);
+            viewModel.RichTextBoxControl.Document.Blocks.Add(p4);
         }
 
         private void GivenUserTypesPunctuation()
@@ -1144,8 +1362,8 @@ namespace RtfMacroStudioView
 
         private TextPointer GivenCaratPositionIsInTheMiddleOfTheDocument()
         {
-            viewModel.CaretPosition = viewModel.CurrentRichText.Blocks.ElementAt(0).ContentStart.GetPositionAtOffset(104);
-            return viewModel.CaretPosition;
+            viewModel.RichTextBoxControl.CaretPosition = viewModel.CurrentRichText.Blocks.ElementAt(0).ContentStart.GetPositionAtOffset(104);
+            return viewModel.RichTextBoxControl.CaretPosition;
         }
 
         private void GivenLinesOfTextAreAddedToCurrentRichText()
