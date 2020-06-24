@@ -21,7 +21,8 @@ namespace RtfMacroStudioViewModel.Enums
             Undefined=0,
             Text,
             SpecialKey,
-            Format
+            Format,
+            Variable
         }
 
         public enum EFormatType
@@ -109,6 +110,8 @@ namespace RtfMacroStudioViewModel.Enums
                     return "Special Key";
                 case EMacroTaskType.Format:
                     return "Format";
+                case EMacroTaskType.Variable:
+                    return "Variable";
                 default:
                     return string.Empty;
             }

@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\App.xaml
-6-1613469248
+7-1962353741
 
-2117470483
+23-1362815320
 161210333419
-Controls\MacroRunPresenterWindow.xaml;Controls\MacroTaskControl.xaml;Controls\MacroTaskEditControl.xaml;Controls\TextSizeEditControl.xaml;MainWindow.xaml;Splash\SplashScreen.xaml;
+Controls\MacroRunPresenterWindow.xaml;Controls\MacroTaskControl.xaml;Controls\MacroTaskEditControl.xaml;Controls\TextSizeEditControl.xaml;Controls\VariableEditControl.xaml;MainWindow.xaml;Splash\SplashScreen.xaml;
 
 False
 

@@ -40,6 +40,7 @@ namespace RtfMacroStudioViewModel.Controls
                     break;
                 case EMacroTaskType.Undefined:
                 case EMacroTaskType.Text:
+                case EMacroTaskType.Variable:
                 default:
                     HideColorFontAndSize();
                     TaskText.Text = StudioViewModel.GetTextFromMacroTask(macroTask);

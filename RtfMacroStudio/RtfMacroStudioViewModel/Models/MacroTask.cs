@@ -17,5 +17,8 @@ namespace RtfMacroStudioViewModel.Models
         public Color TextColor { get; set; }
         public FontFamily TextFont { get; set; }
         public double TextSize { get; set; }
+        public int VarValue { get; set; }
+        public int VarIncrementValue { get; set; }
+        public string VarName { get; set; }
     }
 }

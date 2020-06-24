@@ -30,6 +30,8 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public event NotifyPropertyChanged PropertyChanged;
 
+        public Dictionary<string, Variable> RegisteredVariables { get; set; } = new Dictionary<string, Variable>();
+
         public RichTextBox RichTextBoxControl { get; set; }
         public IEditingCommandHelper EditingCommandHelper { get; }
         public IMacroTaskEditPresenter MacroTaskEditPresenter { get; }
@@ -178,6 +180,35 @@ namespace RtfMacroStudioViewModel.ViewModel
             }
         }
 
+        public int NumberOfLinesAboveCursor
+        {
+            get
+            {
+                int lineCount = 0;
+
+                foreach (Paragraph block in RichTextBoxControl.Document.Blocks)
+                {
+                    if ((block.ContentStart.CompareTo(RichTextBoxControl.CaretPosition) == -1 
+                        && block.ContentEnd.CompareTo(RichTextBoxControl.CaretPosition) == 1)
+                        || block.ContentStart.CompareTo(RichTextBoxControl.CaretPosition) == 0)
+                    {
+                        return lineCount;
+                    }
+                    
+                    foreach (var inline in block.Inlines)
+                    {
+                        if (inline is LineBreak)
+                        {
+                            lineCount++;
+                        }
+                    }
+                    lineCount++;
+                }
+
+                return lineCount;
+            }
+        }
+
         #endregion
 
         #region Constructor
@@ -224,12 +255,32 @@ namespace RtfMacroStudioViewModel.ViewModel
                 case EMacroTaskType.Format:
                     ProcessFormatEditMacroTask(displayedTask, selectedItem);
                     break;
+                case EMacroTaskType.Variable:
+                    ProcessVariableEditMacroTask(displayedTask, text, selectedItem);
+                    break;
                 default:
                     break;
             }
 
             UpdateTask(displayedTask);
             
+        }
+
+        /// <summary>
+        /// Processes a Variable task
+        /// </summary>
+        /// <param name="displayedTask">The task object</param>
+        /// <param name="text">Variable name</param>
+        /// <param name="selectedItem">Tuple of the value and increment value integers</param>
+        private void ProcessVariableEditMacroTask(MacroTask displayedTask, string text, object selectedItem)
+        {
+            Tuple<int, int> valueAndIncrementTuple = selectedItem as Tuple<int, int>;
+
+            displayedTask.VarName = text;
+            displayedTask.VarValue = valueAndIncrementTuple.Item1;
+            displayedTask.VarIncrementValue = valueAndIncrementTuple.Item2;
+            RegisteredVariables[text].Value = valueAndIncrementTuple.Item1;
+            RegisteredVariables[text].IncrementByValue = valueAndIncrementTuple.Item2;
         }
 
         private static void ProcessFormatEditMacroTask(MacroTask displayedTask, object selectedItem)
@@ -299,9 +350,9 @@ namespace RtfMacroStudioViewModel.ViewModel
         
         public virtual void RunMacroToEndOfText()
         {
-            int currentNumberOfLines = NumberOfLinesInDocument;
+            int numberOfLinesUntilEndOfDocument = NumberOfLinesInDocument - NumberOfLinesAboveCursor;
 
-            RunMacro(currentNumberOfLines);
+            RunMacro(numberOfLinesUntilEndOfDocument);
         }
 
         public virtual void RunMacro()
@@ -319,12 +370,34 @@ namespace RtfMacroStudioViewModel.ViewModel
                     case EMacroTaskType.Format:
                         ProcessFormat(task);
                         break;
+                    case EMacroTaskType.Variable:
+                        ProcessVariable(task.VarName);
+                        break;
                     default:
                         break;
                 }
             }
             CurrentRichText = RichTextBoxControl.Document;
             PropertyChanged?.Invoke(nameof(CurrentRichText));
+        }
+
+        private void ProcessVariable(string varName)
+        {
+            if (RichTextBoxControl.Selection.IsEmpty == false)
+            {
+                ProcessSpecialKey(ESpecialKey.Delete);
+            }
+
+            RichTextBoxControl.CaretPosition.InsertTextInRun(RegisteredVariables[varName].Value.ToString());
+            UpdateCaretLocationBy(RegisteredVariables[varName].Value.ToString().Length);
+            CurrentRichText = RichTextBoxControl.Document;
+
+            IncrementVariable(varName);
+        }
+
+        private void IncrementVariable(string varName)
+        {
+            RegisteredVariables[varName].Value += RegisteredVariables[varName].IncrementByValue;
         }
 
         private void ProcessFormat(MacroTask task)
@@ -414,7 +487,7 @@ namespace RtfMacroStudioViewModel.ViewModel
                     break;
                 case ESpecialKey.DownArrow:
                     EditingCommandHelper.MoveDownByLine(RichTextBoxControl);
-                    EditingCommands.MoveDownByLine.Execute(null, RichTextBoxControl);
+                   // EditingCommands.MoveDownByLine.Execute(null, RichTextBoxControl);
                     
                     break;
                 case ESpecialKey.Home:
@@ -595,10 +668,40 @@ namespace RtfMacroStudioViewModel.ViewModel
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 
+        public void AddVariableMacroTask(string name, int value, int incrementByValue)
+        {
+            var newVariable = new Variable()
+            {
+                Name = name,
+                Value = value,
+                IncrementByValue = incrementByValue,
+            };
+
+            RegisteredVariables.Add(name, newVariable);
+            CurrentTaskList.Add(new MacroTask()
+            {
+                Index = CurrentTaskList.Count,
+                MacroTaskType = EMacroTaskType.Variable,
+                VarName = name,
+                VarValue = value,
+                VarIncrementValue = incrementByValue,
+            });
+        }
+
+        public bool IsVariableNameInUse(string variableName)
+        {
+            return RegisteredVariables.ContainsKey(variableName);
+        }
+
         public void RemoveTaskAt(int taskIndex)
         {
             try
             {
+                if (CurrentTaskList[taskIndex].MacroTaskType == EMacroTaskType.Variable)
+                {
+                    RegisteredVariables.Remove(CurrentTaskList[taskIndex].VarName);
+                }
+                
                 CurrentTaskList.RemoveAt(taskIndex);
                 ReIndexTasks();
 
@@ -628,6 +731,7 @@ namespace RtfMacroStudioViewModel.ViewModel
         public void ClearAllTasks()
         {
             CurrentTaskList.Clear();
+            RegisteredVariables.Clear();
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 

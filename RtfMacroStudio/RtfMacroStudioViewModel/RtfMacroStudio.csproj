@@ -73,12 +73,16 @@
     <Compile Include="Controls\TextSizeEditControl.xaml.cs">
       <DependentUpon>TextSizeEditControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\VariableEditControl.xaml.cs">
+      <DependentUpon>VariableEditControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Enums\Enums.cs" />
     <Compile Include="Interfaces\IEditingCommandHelper.cs" />
     <Compile Include="Interfaces\IMacroRunPresenter.cs" />
     <Compile Include="Interfaces\IMacroTaskEditPresenter.cs" />
     <Compile Include="Models\MacroTask.cs" />
     <Compile Include="Helpers\EditingCommandHelper.cs" />
+    <Compile Include="Models\Variable.cs" />
     <Compile Include="Presenters\MacroRunPresenter.cs" />
     <Compile Include="Presenters\MacroTaskEditPresenter.cs" />
     <Compile Include="Splash\SplashScreen.xaml.cs">
@@ -99,6 +103,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TextSizeEditControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VariableEditControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

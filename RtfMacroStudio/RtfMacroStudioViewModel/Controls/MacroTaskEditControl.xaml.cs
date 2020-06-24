@@ -1,6 +1,7 @@
 ﻿using RtfMacroStudioViewModel.Enums;
 using RtfMacroStudioViewModel.Models;
 using RtfMacroStudioViewModel.ViewModel;
+using System;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -20,6 +21,21 @@ namespace RtfMacroStudioViewModel.Controls
         public MacroTaskEditControl()
         {
             InitializeComponent();
+            VariableEditor.VariableNameChanged += VariableEditor_VariableNameChanged;
+        }
+
+        private void VariableEditor_VariableNameChanged()
+        {
+            if (viewModel.IsVariableNameInUse(VariableEditor.VariableName))
+            {
+                buttonOk.IsEnabled = false;
+                LabelVariableNameWarning.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                buttonOk.IsEnabled = true;
+                LabelVariableNameWarning.Visibility = Visibility.Hidden;
+            }
         }
 
         public MacroTaskEditControl(StudioViewModel viewModel)
@@ -48,6 +64,9 @@ namespace RtfMacroStudioViewModel.Controls
                 case EMacroTaskType.Format:
                     ShowAppropriateFormattingOptions();
                     break;
+                case EMacroTaskType.Variable:
+                    ShowVariableOptions();
+                    break;
                 default:
                     break;
             }
@@ -59,6 +78,7 @@ namespace RtfMacroStudioViewModel.Controls
             TextBoxTaskText.Visibility = Visibility.Visible;
             RectangleColor.Visibility = Visibility.Hidden;
             TextSizeSelector.Visibility = Visibility.Hidden;
+            VariableEditor.Visibility = Visibility.Hidden;
         }
 
         private void ShowOnlyComboBox()
@@ -67,6 +87,16 @@ namespace RtfMacroStudioViewModel.Controls
             TextBoxTaskText.Visibility = Visibility.Hidden;
             RectangleColor.Visibility = Visibility.Hidden;
             TextSizeSelector.Visibility = Visibility.Hidden;
+            VariableEditor.Visibility = Visibility.Hidden;
+        }
+
+        private void ShowVariableOptions()
+        {
+            ComboBoxItems.Visibility = Visibility.Hidden;
+            TextBoxTaskText.Visibility = Visibility.Hidden;
+            RectangleColor.Visibility = Visibility.Hidden;
+            TextSizeSelector.Visibility = Visibility.Hidden;
+            VariableEditor.Visibility = Visibility.Visible;
         }
 
         private void ShowAppropriateFormattingOptions()
@@ -106,6 +136,7 @@ namespace RtfMacroStudioViewModel.Controls
                 ComboBoxItems.ItemsSource = viewModel.SupportedFormattingOptions;
                 SelectComboBoxItem(DisplayedTask.FormatType.ToString());
             }
+            VariableEditor.Visibility = Visibility.Hidden;
         }
 
         private void buttonCancel_Click(object sender, RoutedEventArgs e)
@@ -127,6 +158,10 @@ namespace RtfMacroStudioViewModel.Controls
                 {
                     viewModel.EditMacroTaskComplete(DisplayedTask, string.Empty, TextSizeSelector.ComboBoxSizes.SelectedItem);
                 }
+            }
+            else if (DisplayedTask.MacroTaskType == EMacroTaskType.Variable)
+            {
+                viewModel.EditMacroTaskComplete(DisplayedTask, VariableEditor.VariableName, new Tuple<int, int>(VariableEditor.VariableValue, VariableEditor.VariableIncrementValue));
             }
             else
             {

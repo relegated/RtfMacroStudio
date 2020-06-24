@@ -1,7 +1,6 @@
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\bin\Debug\RtfMacroStudioViewModel.exe.config
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\bin\Debug\RtfMacroStudioViewModel.exe
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\bin\Debug\RtfMacroStudioViewModel.pdb
-C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudio.csprojAssemblyReference.cache
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\MainWindow.g.cs
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\App.g.cs
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudioViewModel_MarkupCompile.cache
@@ -24,3 +23,6 @@ C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\R
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\GeneratedInternalTypeHelper.g.cs
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\Controls\MacroRunPresenterWindow.g.cs
 C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\Controls\MacroRunPresenterWindow.baml
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\Controls\VariableEditControl.g.cs
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\Controls\VariableEditControl.baml
+C:\Users\releg\OneDrive\Documents\Pathway\CS 499\RtfMacroStudio\RtfMacroStudio\RtfMacroStudio\RtfMacroStudioViewModel\obj\Debug\RtfMacroStudio.csprojAssemblyReference.cache

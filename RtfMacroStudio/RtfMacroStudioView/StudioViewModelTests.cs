@@ -885,6 +885,31 @@ namespace RtfMacroStudioView
             Assert.That(viewModel.NumberOfLinesInDocument == 5);
         }
 
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(3)]
+        public void NumberOfLinesAboveCursorReturnsCorrectly(int numOfDownInputs)
+        {
+            GivenFiveLinesEnteredViaParagraphsAndLineBreaks();
+
+            int paragraphCounter = 0;
+
+            foreach (Paragraph paragraph in viewModel.RichTextBoxControl.Document.Blocks)
+            {
+                if (paragraphCounter < numOfDownInputs)
+                {
+                    paragraphCounter++;
+                    continue;
+                }
+
+                viewModel.RichTextBoxControl.CaretPosition = paragraph.ContentStart;
+                break;
+            }
+
+
+            Assert.That(viewModel.NumberOfLinesAboveCursor == numOfDownInputs);
+        }
+
         [Test]
         public void RunMacroNTimesRunsMacroNTimes()
         {
@@ -916,6 +941,33 @@ namespace RtfMacroStudioView
 
             Assert.That(line0 == "Goodbye world!");
             Assert.That(line1 == "Goodbye world!");
+            Assert.That(line2 == "Goodbye world!");
+            Assert.That(line3 == "Goodbye world!");
+            Assert.That(line4 == "Goodbye world!");
+            Assert.That(line5 == "Goodbye ");
+        }
+
+        [Test]
+        public void RunMacroUntilEndOfFileRunsForLinesAtOrBelowCursorPosition()
+        {
+            GivenSixLinesAndCursorIsAtLineThree();
+
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.ControlShiftRightArrow);
+            viewModel.AddTextInputMacroTask("Goodbye ");
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Home);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.DownArrow);
+
+            viewModel.RunMacroToEndOfText();
+
+            var line0 = GetTextFromBlock(0);
+            var line1 = GetTextFromBlock(1);
+            var line2 = GetTextFromBlock(2);
+            var line3 = GetTextFromBlock(3);
+            var line4 = GetTextFromBlock(4);
+            var line5 = GetTextFromBlock(5);
+
+            Assert.That(line0 == "Hello world!");
+            Assert.That(line1 == "Hello world!");
             Assert.That(line2 == "Goodbye world!");
             Assert.That(line3 == "Goodbye world!");
             Assert.That(line4 == "Goodbye world!");
@@ -982,6 +1034,80 @@ namespace RtfMacroStudioView
             Assert.That(viewModel.NumTimesRunMacroCalled == 6);
         }
 
+        [Test]
+        public void CanAddVariableTask()
+        {
+            viewModel.AddVariableMacroTask("NewVar", 0, 1);
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Variable);
+            Assert.That(viewModel.RegisteredVariables["NewVar"].IncrementByValue == 1);
+            Assert.That(viewModel.RegisteredVariables["NewVar"].Value == 0);
+            Assert.That(viewModel.CurrentTaskList[0].VarName == "NewVar");
+            Assert.That(viewModel.CurrentTaskList[0].VarValue == 0);
+            Assert.That(viewModel.CurrentTaskList[0].VarIncrementValue == 1);
+        }
+
+        [Test]
+        public void VariableNameAlreadyInUseReturnsProperly()
+        {
+            Assert.That(viewModel.IsVariableNameInUse("NewVar") == false);
+
+            viewModel.AddVariableMacroTask("NewVar", 0, 1);
+
+            Assert.That(viewModel.IsVariableNameInUse("NewVar") == true);
+        }
+
+        [Test]
+        public void ClearAllTasksRemovesAllRegisteredVariables()
+        {
+            GivenAVariableTask();
+
+            Assert.That(viewModel.RegisteredVariables.Count == 1);
+
+            viewModel.ClearAllTasks();
+
+            Assert.That(viewModel.RegisteredVariables.Count == 0);
+        }
+
+        [Test]
+        public void RemovingAVariableTaskRemovesTheRegisteredVariable()
+        {
+            GivenAVariableTask();
+
+            viewModel.RemoveTaskAt(0);
+
+            Assert.That(viewModel.RegisteredVariables.Count == 0);
+        }
+
+        [Test]
+        public void RunningVariableTaskIncrementsProperly()
+        {
+            GivenARepeatableVariableTask(0, 1);
+
+            viewModel.RunMacro(3);
+
+            var line0 = GetTextFromBlock(0);
+            var line1 = GetTextFromBlock(1);
+            var line2 = GetTextFromBlock(2);
+
+            Assert.That(viewModel.RichTextBoxControl.Document.Blocks.Count == 4);
+            Assert.That(line0 == "0");
+            Assert.That(line1 == "1");
+            Assert.That(line2 == "2");
+        }
+
+        private void GivenARepeatableVariableTask(int startValue, int incrementValue)
+        {
+            viewModel.CurrentTaskList.Clear();
+            viewModel.AddVariableMacroTask("NewVar", startValue, incrementValue);
+            viewModel.AddSpecialKeyMacroTask(ESpecialKey.Enter);
+        }
+
+        private void GivenAVariableTask()
+        {
+            viewModel.AddVariableMacroTask("NewVar", 0, 1);
+        }
+
         private void GivenUserWillChooseEndOfFileFromRunPresenter()
         {
             mockRunPresenter.Setup(m => m.ShowRunOptionWindow()).Returns(true);
@@ -1029,6 +1155,27 @@ namespace RtfMacroStudioView
             viewModel.RichTextBoxControl.CaretPosition = viewModel.RichTextBoxControl.Document.ContentStart;
         }
 
+        private void GivenSixLinesAndCursorIsAtLineThree()
+        {
+            GivenARepeatableTask();
+            viewModel.RunMacro(5);
+            viewModel.ClearAllTasks();
+            viewModel.NumTimesRunMacroCalled = 0;
+
+            int pCounter = 0;
+            foreach (Paragraph p in viewModel.RichTextBoxControl.Document.Blocks)
+            {
+                if (pCounter < 2) 
+                { 
+                    pCounter++;
+                    continue;
+                }
+
+                viewModel.RichTextBoxControl.CaretPosition = p.ContentStart;
+                break;
+            }
+        }
+
         private void GivenARepeatableTask()
         {
             viewModel.AddTextInputMacroTask("Hello world!");
@@ -1062,6 +1209,7 @@ namespace RtfMacroStudioView
             viewModel.RichTextBoxControl.Document.Blocks.Add(p2);
             viewModel.RichTextBoxControl.Document.Blocks.Add(p3);
             viewModel.RichTextBoxControl.Document.Blocks.Add(p4);
+            viewModel.CurrentRichText = viewModel.RichTextBoxControl.Document;
         }
 
         private void GivenUserTypesPunctuation()
