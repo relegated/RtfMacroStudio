@@ -10,7 +10,7 @@
   
     </UserControl.Resources>
     <Grid>
-        <Canvas Background="#FFF4F4F5" VerticalAlignment="Top" Width="200" Height="85" Margin="5,5,5,5" AllowDrop="True" Drop="Canvas_Drop">
+        <Canvas x:Name="CanvasMain" Background="#FFF4F4F5" VerticalAlignment="Top" Width="200" Height="85" Margin="5,5,5,5" AllowDrop="True" Drop="Canvas_Drop">
             <Canvas.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Delete Task" x:Name="ContextMenuItemDelete" Click="ContextMenuDelete_Click"></MenuItem>

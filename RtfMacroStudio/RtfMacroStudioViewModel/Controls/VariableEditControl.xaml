@@ -8,12 +8,14 @@
              d:DesignHeight="100" d:DesignWidth="320">
     <Grid>
         <Canvas Background="White">
-            <Label Content="Variable _Name" Canvas.Left="13" Canvas.Top="12"/>
-            <TextBox x:Name="TextBoxName" Height="23" Canvas.Left="13" TextWrapping="Wrap" Text="" Canvas.Top="38" Width="120" TextChanged="TextBoxName_TextChanged"/>
-            <Label Content="_Value" Canvas.Left="157" Canvas.Top="12"/>
-            <TextBox x:Name="TextBoxValue" Height="23" Canvas.Left="157" TextWrapping="Wrap" Text="0" Canvas.Top="38" Width="38" PreviewTextInput="TextBoxIntValue_PreviewTextInput"/>
-            <Label Content="_Increment By" Canvas.Left="211" Canvas.Top="12"/>
-            <TextBox x:Name="TextBoxIncrementValue" Height="23" Canvas.Left="222" TextWrapping="Wrap" Text="1" Canvas.Top="38" Width="38" PreviewTextInput="TextBoxIntValue_PreviewTextInput"/>
+            <Label Content="Variable _Name" Canvas.Left="2" Canvas.Top="4"/>
+            <TextBox x:Name="TextBoxName" Height="23" Canvas.Left="89" TextWrapping="Wrap" Text="" Canvas.Top="7" Width="155" TextChanged="TextBoxName_TextChanged"/>
+            <Label Content="_Value" Canvas.Left="9" Canvas.Top="31"/>
+            <TextBox x:Name="TextBoxValue" Height="23" Canvas.Left="10" TextWrapping="Wrap" Text="0" Canvas.Top="57" Width="38" PreviewTextInput="TextBoxIntValue_PreviewTextInput"/>
+            <Label Content="_Increment By" Canvas.Left="53" Canvas.Top="31"/>
+            <TextBox x:Name="TextBoxIncrementValue" Height="23" Canvas.Left="58" TextWrapping="Wrap" Text="1" Canvas.Top="57" Width="38" PreviewTextInput="TextBoxIntValue_PreviewTextInput"/>
+            <CheckBox x:Name="CheckBoxUsePlaceValue" Content="Set _Place Values" Canvas.Left="143" Canvas.Top="37" Checked="CheckBoxUsePlaceValue_Checked" Unchecked="CheckBoxUsePlaceValue_Unchecked"/>
+            <TextBox x:Name="TextBoxPlaceValues" Height="23" Canvas.Left="143" TextWrapping="Wrap" Text="1" Canvas.Top="57" Width="38" IsReadOnly="True" PreviewTextInput="TextBoxIntValue_PreviewTextInput" Background="Gray"/>
         </Canvas>
     </Grid>
 </UserControl>

@@ -1037,7 +1037,7 @@ namespace RtfMacroStudioView
         [Test]
         public void CanAddVariableTask()
         {
-            viewModel.AddVariableMacroTask("NewVar", 0, 1);
+            viewModel.AddVariableMacroTask("NewVar", 0, 1, false, 1);
 
             Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Variable);
             Assert.That(viewModel.RegisteredVariables["NewVar"].IncrementByValue == 1);
@@ -1052,7 +1052,7 @@ namespace RtfMacroStudioView
         {
             Assert.That(viewModel.IsVariableNameInUse("NewVar") == false);
 
-            viewModel.AddVariableMacroTask("NewVar", 0, 1);
+            viewModel.AddVariableMacroTask("NewVar", 0, 1, false, 1);
 
             Assert.That(viewModel.IsVariableNameInUse("NewVar") == true);
         }
@@ -1096,16 +1096,32 @@ namespace RtfMacroStudioView
             Assert.That(line2 == "2");
         }
 
-        private void GivenARepeatableVariableTask(int startValue, int incrementValue)
+        [Test]
+        public void RunningVariableTaskWithPlaceValuesFillsProperly()
+        {
+            GivenARepeatableVariableTask(0, 1, true, 3);
+
+            viewModel.RunMacro(3);
+
+            var line0 = GetTextFromBlock(0);
+            var line1 = GetTextFromBlock(1);
+            var line2 = GetTextFromBlock(2);
+
+            Assert.That(line0 == "000");
+            Assert.That(line1 == "001");
+            Assert.That(line2 == "002");
+        }
+
+        private void GivenARepeatableVariableTask(int startValue, int incrementValue, bool usePlaceValue = false, int placeValue = 1)
         {
             viewModel.CurrentTaskList.Clear();
-            viewModel.AddVariableMacroTask("NewVar", startValue, incrementValue);
+            viewModel.AddVariableMacroTask("NewVar", startValue, incrementValue, usePlaceValue, placeValue);
             viewModel.AddSpecialKeyMacroTask(ESpecialKey.Enter);
         }
 
         private void GivenAVariableTask()
         {
-            viewModel.AddVariableMacroTask("NewVar", 0, 1);
+            viewModel.AddVariableMacroTask("NewVar", 0, 1, false, 1);
         }
 
         private void GivenUserWillChooseEndOfFileFromRunPresenter()

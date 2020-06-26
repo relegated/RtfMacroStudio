@@ -20,5 +20,7 @@ namespace RtfMacroStudioViewModel.Models
         public int VarValue { get; set; }
         public int VarIncrementValue { get; set; }
         public string VarName { get; set; }
+        public bool VarUsePlaceValue { get; set; }
+        public int VarPlaceValue { get; set; }
     }
 }

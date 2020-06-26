@@ -11,5 +11,7 @@ namespace RtfMacroStudioViewModel.Models
         public string Name { get; set; }
         public int Value { get; set; }
         public int IncrementByValue { get; set; }
+        public int PlaceValuesToFill { get; set; }
+        public bool UsePlaceValues { get; set; }
     }
 }

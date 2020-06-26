@@ -33,17 +33,24 @@ namespace RtfMacroStudioViewModel.Controls
                 case EMacroTaskType.SpecialKey:
                     TaskText.Text = macroTask.SpecialKey.ToString();
                     HideColorFontAndSize();
+                    CanvasMain.Background = new SolidColorBrush(Colors.LightSeaGreen);
                     break;
                 case EMacroTaskType.Format:
                     TaskText.Text = macroTask.FormatType.ToString();
                     SetupFormatType();
+                    CanvasMain.Background = new SolidColorBrush(Colors.LightSteelBlue);
+                    break;
+                case EMacroTaskType.Variable:
+                    TaskText.Text = macroTask.VarName;
+                    HideColorFontAndSize();
+                    CanvasMain.Background = new SolidColorBrush(Colors.LightGoldenrodYellow);
                     break;
                 case EMacroTaskType.Undefined:
                 case EMacroTaskType.Text:
-                case EMacroTaskType.Variable:
                 default:
                     HideColorFontAndSize();
                     TaskText.Text = StudioViewModel.GetTextFromMacroTask(macroTask);
+                    CanvasMain.Background = new SolidColorBrush(Colors.LightPink);
                     break;
             }
 

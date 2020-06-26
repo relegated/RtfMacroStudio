@@ -270,17 +270,28 @@ namespace RtfMacroStudioViewModel.ViewModel
         /// Processes a Variable task
         /// </summary>
         /// <param name="displayedTask">The task object</param>
-        /// <param name="text">Variable name</param>
-        /// <param name="selectedItem">Tuple of the value and increment value integers</param>
+        /// <param name="text">Original Variable name</param>
+        /// <param name="selectedItem">Tuple of the new name, value, increment value, whether to use place value, and the number of places</param>
         private void ProcessVariableEditMacroTask(MacroTask displayedTask, string text, object selectedItem)
         {
-            Tuple<int, int> valueAndIncrementTuple = selectedItem as Tuple<int, int>;
+            var variableValues = selectedItem as Tuple<string, int, int, bool, int>;
 
-            displayedTask.VarName = text;
-            displayedTask.VarValue = valueAndIncrementTuple.Item1;
-            displayedTask.VarIncrementValue = valueAndIncrementTuple.Item2;
-            RegisteredVariables[text].Value = valueAndIncrementTuple.Item1;
-            RegisteredVariables[text].IncrementByValue = valueAndIncrementTuple.Item2;
+            displayedTask.VarName = variableValues.Item1;
+            displayedTask.VarValue = variableValues.Item2;
+            displayedTask.VarIncrementValue = variableValues.Item3;
+            displayedTask.VarUsePlaceValue = variableValues.Item4;
+            displayedTask.VarPlaceValue = variableValues.Item5;
+
+            RegisteredVariables.Remove(text);
+            RegisteredVariables.Add(variableValues.Item1, new Variable()
+            {
+                Name = variableValues.Item1,
+                Value = variableValues.Item2,
+                IncrementByValue = variableValues.Item3,
+                UsePlaceValues = variableValues.Item4,
+                PlaceValuesToFill = variableValues.Item5,
+            });
+
         }
 
         private static void ProcessFormatEditMacroTask(MacroTask displayedTask, object selectedItem)
@@ -388,7 +399,18 @@ namespace RtfMacroStudioViewModel.ViewModel
                 ProcessSpecialKey(ESpecialKey.Delete);
             }
 
-            RichTextBoxControl.CaretPosition.InsertTextInRun(RegisteredVariables[varName].Value.ToString());
+            var currentVariable = RegisteredVariables[varName];
+
+            if (currentVariable.UsePlaceValues)
+            {
+                var formatString = $"D{currentVariable.PlaceValuesToFill}";
+                RichTextBoxControl.CaretPosition.InsertTextInRun(currentVariable.Value.ToString(formatString));
+            }
+            else
+            {
+                RichTextBoxControl.CaretPosition.InsertTextInRun(currentVariable.Value.ToString());
+            }
+            
             UpdateCaretLocationBy(RegisteredVariables[varName].Value.ToString().Length);
             CurrentRichText = RichTextBoxControl.Document;
 
@@ -668,13 +690,15 @@ namespace RtfMacroStudioViewModel.ViewModel
             RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 
-        public void AddVariableMacroTask(string name, int value, int incrementByValue)
+        public void AddVariableMacroTask(string name, int value, int incrementByValue, bool usePlaceValue, int placeValue)
         {
             var newVariable = new Variable()
             {
                 Name = name,
                 Value = value,
                 IncrementByValue = incrementByValue,
+                UsePlaceValues = usePlaceValue,
+                PlaceValuesToFill = placeValue,
             };
 
             RegisteredVariables.Add(name, newVariable);
@@ -685,7 +709,10 @@ namespace RtfMacroStudioViewModel.ViewModel
                 VarName = name,
                 VarValue = value,
                 VarIncrementValue = incrementByValue,
+                VarUsePlaceValue = usePlaceValue,
+                VarPlaceValue = placeValue,
             });
+            RaisePropertyChangedEvent(nameof(CurrentTaskList));
         }
 
         public bool IsVariableNameInUse(string variableName)

@@ -54,6 +54,7 @@
                     <RibbonButton x:Name="RibbonButtonAddMacroKeystroke" Label="Keystroke" Click="RibbonButtonAddMacroKeystroke_Click"></RibbonButton>
                     <RibbonMenuButton x:Name="RibbonMenuButtonSpecialKeys" Label="Special Key"></RibbonMenuButton>
                     <RibbonMenuButton x:Name="RibbonMenuButtonFormat" Label="Format"></RibbonMenuButton>
+                    <RibbonButton x:Name="RibbonButtonAddVariable" Label="Variable" Click="RibbonButtonAddVariable_Click"></RibbonButton>
                 </RibbonGroup>
                 <RibbonGroup Header="Run">
                     <RibbonButton x:Name="RibbonButtonRunMacro" Label="Run" Click="RibbonButtonRunMacro_Click"></RibbonButton>

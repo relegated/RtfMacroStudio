@@ -127,7 +127,7 @@ namespace RtfMacroStudioViewModel
 
         private void RibbonButtonAddMacroKeystroke_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.AddTextInputMacroTask("Demonstration Text");
+            viewModel.AddTextInputMacroTask("Double-click to Edit Text");
         }
 
         private void RichTextBoxMain_LostFocus(object sender, RoutedEventArgs e)
@@ -233,6 +233,11 @@ namespace RtfMacroStudioViewModel
                 RibbonButtonColor.LargeImageSource = viewModel.ColorImageDrawing;
                 RibbonButtonColor.SmallImageSource = viewModel.ColorImageDrawing;
             }
+        }
+
+        private void RibbonButtonAddVariable_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.AddVariableMacroTask("Edit Variable", 0, 1, false, 1);
         }
     }
 }

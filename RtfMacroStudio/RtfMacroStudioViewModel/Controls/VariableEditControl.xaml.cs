@@ -1,4 +1,5 @@
-﻿using RtfMacroStudioViewModel.ViewModel;
+﻿using RtfMacroStudioViewModel.Models;
+using RtfMacroStudioViewModel.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,18 @@ namespace RtfMacroStudioViewModel.Controls
         {
             InitializeComponent();
         }
+
+        public void SetInitialValues(Variable variable)
+        {
+            TextBoxName.Text = variable.Name;
+            OriginalName = variable.Name;
+            TextBoxValue.Text = variable.Value.ToString();
+            TextBoxIncrementValue.Text = variable.IncrementByValue.ToString();
+            TextBoxPlaceValues.Text = variable.PlaceValuesToFill.ToString();
+            CheckBoxUsePlaceValue.IsChecked = variable.UsePlaceValues;
+        }
+
+        public string OriginalName { get; set; }
 
         public delegate void NotifyVariableChange();
         public event NotifyVariableChange VariableNameChanged;
@@ -58,8 +71,26 @@ namespace RtfMacroStudioViewModel.Controls
             get
             {
                 int n = 1;
-                int.TryParse(TextBoxValue.Text, out n);
+                int.TryParse(TextBoxIncrementValue.Text, out n);
                 return n;
+            }
+        }
+
+        public int VariablePlaceValue
+        {
+            get
+            {
+                int n = 1;
+                int.TryParse(TextBoxPlaceValues.Text, out n);
+                return n;
+            }
+        }
+
+        public bool VariableUsePlaceValue
+        {
+            get
+            {
+                return CheckBoxUsePlaceValue.IsChecked ?? false;
             }
         }
 
@@ -76,6 +107,18 @@ namespace RtfMacroStudioViewModel.Controls
         private void TextBoxName_TextChanged(object sender, TextChangedEventArgs e)
         {
             VariableName = TextBoxName.Text;
+        }
+
+        private void CheckBoxUsePlaceValue_Checked(object sender, RoutedEventArgs e)
+        {
+            TextBoxPlaceValues.IsReadOnly = false;
+            TextBoxPlaceValues.Background = new SolidColorBrush(Colors.White);
+        }
+
+        private void CheckBoxUsePlaceValue_Unchecked(object sender, RoutedEventArgs e)
+        {
+            TextBoxPlaceValues.IsReadOnly = true;
+            TextBoxPlaceValues.Background = new SolidColorBrush(Colors.Gray);
         }
     }
 }

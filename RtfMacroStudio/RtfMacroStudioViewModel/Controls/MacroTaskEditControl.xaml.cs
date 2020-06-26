@@ -66,6 +66,7 @@ namespace RtfMacroStudioViewModel.Controls
                     break;
                 case EMacroTaskType.Variable:
                     ShowVariableOptions();
+                    VariableEditor.SetInitialValues(viewModel.RegisteredVariables[macroTask.VarName]);
                     break;
                 default:
                     break;
@@ -161,7 +162,8 @@ namespace RtfMacroStudioViewModel.Controls
             }
             else if (DisplayedTask.MacroTaskType == EMacroTaskType.Variable)
             {
-                viewModel.EditMacroTaskComplete(DisplayedTask, VariableEditor.VariableName, new Tuple<int, int>(VariableEditor.VariableValue, VariableEditor.VariableIncrementValue));
+                var values = new Tuple<string, int, int, bool, int>(VariableEditor.VariableName, VariableEditor.VariableValue, VariableEditor.VariableIncrementValue, VariableEditor.VariableUsePlaceValue, VariableEditor.VariablePlaceValue);
+                viewModel.EditMacroTaskComplete(DisplayedTask, VariableEditor.OriginalName, values);
             }
             else
             {
