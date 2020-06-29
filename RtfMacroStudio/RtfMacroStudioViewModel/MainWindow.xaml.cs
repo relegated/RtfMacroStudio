@@ -140,16 +140,6 @@ namespace RtfMacroStudioViewModel
             viewModel.RunMacroPresenter();
         }
 
-        private void RibbonButtonRecordMacro_Click(object sender, RoutedEventArgs e)
-        {
-            viewModel.RecordMacroStart();
-        }
-
-        private void RibbonButtonStopRecording_Click(object sender, RoutedEventArgs e)
-        {
-            viewModel.StopRecording();
-        }
-
         private void RichTextBoxMain_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             List<ModifierKeys> modifierKeys = GetListOfModifierKeys();
@@ -238,6 +228,29 @@ namespace RtfMacroStudioViewModel
         private void RibbonButtonAddVariable_Click(object sender, RoutedEventArgs e)
         {
             viewModel.AddVariableMacroTask("Edit Variable", 0, 1, false, 1);
+        }
+
+        private void ToggleButtonRecordControl_Checked(object sender, RoutedEventArgs e)
+        {
+            if (ToggleButtonRecordMacro == null ||
+                ToggleButtonStopRecording == null ||
+                viewModel == null) 
+            {
+                return;
+            }
+
+            var buttonName = ((RibbonToggleButton)sender).Name;
+
+            if (buttonName == nameof(ToggleButtonRecordMacro))
+            {
+                ToggleButtonStopRecording.IsChecked = false;
+                viewModel.RecordMacroStart();
+            }
+            else if (buttonName == nameof(ToggleButtonStopRecording))
+            {
+                ToggleButtonRecordMacro.IsChecked = false;
+                viewModel.StopRecording();
+            }
         }
     }
 }

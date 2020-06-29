@@ -26,6 +26,7 @@ namespace RtfMacroStudioView
         Mock<IEditingCommandHelper> mockEditingCommandHelper;
         Mock<IMacroTaskEditPresenter> mockTaskEditPresenter;
         Mock<IMacroRunPresenter> mockRunPresenter;
+        Mock<IFileHelper> mockFileHelper;
 
         [SetUp]
         public void Setup()
@@ -33,7 +34,8 @@ namespace RtfMacroStudioView
             mockTaskEditPresenter = new Mock<IMacroTaskEditPresenter>();
             mockEditingCommandHelper = new Mock<IEditingCommandHelper>();
             mockRunPresenter = new Mock<IMacroRunPresenter>();
-            viewModel = new StudioViewModelMock(mockEditingCommandHelper.Object, mockTaskEditPresenter.Object, mockRunPresenter.Object);
+            mockFileHelper = new Mock<IFileHelper>();
+            viewModel = new StudioViewModelMock(mockEditingCommandHelper.Object, mockFileHelper.Object, mockTaskEditPresenter.Object, mockRunPresenter.Object);
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
             propertyChangedText = string.Empty;
             mockEditingCommandHelper.Setup(m => m.SelectRightByWord(It.IsAny<RichTextBox>()))
@@ -1110,6 +1112,73 @@ namespace RtfMacroStudioView
             Assert.That(line0 == "000");
             Assert.That(line1 == "001");
             Assert.That(line2 == "002");
+        }
+
+        [Test]
+        public void CanCopyToClipboard()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+
+            viewModel.CopyToClipboard();
+
+            var text = Clipboard.GetText();
+            var data = Clipboard.GetData(DataFormats.Rtf);
+
+            Assert.That(text == "In ");
+            Assert.That(viewModel.RichTextBoxControl.Selection.IsEmpty == false);
+        }
+
+        [Test]
+        public void CanCutToClipboard()
+        {
+            GivenLinesOfTextAreAddedToCurrentRichText();
+            GivenFirstWordIsSelected();
+
+            viewModel.CutToClipboard();
+
+            var text = Clipboard.GetText();
+            var data = Clipboard.GetData(DataFormats.Rtf);
+
+            Assert.That(text == "In ");
+            Assert.That(viewModel.RichTextBoxControl.Selection.IsEmpty);
+        }
+
+        [Test]
+        public void CanPasteFromClipboard()
+        {
+            GivenRichTextWordIsCopied();
+
+            viewModel.PasteFromClipboard();
+
+            GivenFirstWordIsSelected();
+
+            Assert.That(viewModel.RichTextBoxControl.Selection.Text == "Hello");
+        }
+
+        [Test]
+        public void FileHelperIsCalledWithOpenFile()
+        {
+            viewModel.OpenFile();
+
+            mockFileHelper.Verify(m => m.LoadFile(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void FileHelperIsCalledWithSaveFile()
+        {
+            viewModel.SaveFile();
+
+            mockFileHelper.Verify(m => m.SaveFile(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        private void GivenRichTextWordIsCopied()
+        {
+            viewModel.AddTextInputMacroTask("Hello");
+            viewModel.RunMacro();
+            viewModel.ClearAllTasks();
+            GivenFirstWordIsSelected();
+            viewModel.CutToClipboard();
         }
 
         private void GivenARepeatableVariableTask(int startValue, int incrementValue, bool usePlaceValue = false, int placeValue = 1)

@@ -11,8 +11,8 @@ namespace RtfMacroStudioViewModel.ViewModel
     {
         public int NumTimesRunMacroCalled = 0;
         
-        public StudioViewModelMock(IEditingCommandHelper editingCommandHelper, IMacroTaskEditPresenter macroTaskEditPresenter, IMacroRunPresenter macroRunPresenter) 
-            : base(editingCommandHelper, macroTaskEditPresenter, macroRunPresenter)
+        public StudioViewModelMock(IEditingCommandHelper editingCommandHelper, IFileHelper fileHelper, IMacroTaskEditPresenter macroTaskEditPresenter, IMacroRunPresenter macroRunPresenter) 
+            : base(editingCommandHelper, fileHelper, macroTaskEditPresenter, macroRunPresenter)
         {
         }
 
@@ -22,6 +22,5 @@ namespace RtfMacroStudioViewModel.ViewModel
             base.RunMacro();
         }
 
-      
     }
 }

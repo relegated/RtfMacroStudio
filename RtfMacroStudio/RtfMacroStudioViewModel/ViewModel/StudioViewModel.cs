@@ -34,6 +34,7 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public RichTextBox RichTextBoxControl { get; set; }
         public IEditingCommandHelper EditingCommandHelper { get; }
+        public IFileHelper FileHelper { get; }
         public IMacroTaskEditPresenter MacroTaskEditPresenter { get; }
         public IMacroRunPresenter MacroRunPresenter { get; }
         public List<EFormatType> SupportedFormattingOptions { get; set; } = new List<EFormatType>();
@@ -213,7 +214,7 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         #region Constructor
 
-        public StudioViewModel(IEditingCommandHelper editingCommandHelper, IMacroTaskEditPresenter macroTaskEditPresenter, IMacroRunPresenter macroRunPresenter)
+        public StudioViewModel(IEditingCommandHelper editingCommandHelper, IFileHelper fileHelper, IMacroTaskEditPresenter macroTaskEditPresenter, IMacroRunPresenter macroRunPresenter)
         {
             RichTextBoxControl = new RichTextBox();
             GetAvailableFonts();
@@ -225,6 +226,7 @@ namespace RtfMacroStudioViewModel.ViewModel
             CurrentRichText.Blocks.Clear();
             RichTextBoxControl.Document.Blocks.Clear();
             EditingCommandHelper = editingCommandHelper;
+            FileHelper = fileHelper;
             MacroTaskEditPresenter = macroTaskEditPresenter;
             MacroRunPresenter = macroRunPresenter;
         }
@@ -794,8 +796,12 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public void RefreshCurrentFormatting()
         {
-            //Select one character
-            EditingCommandHelper.SelectRightByCharacter(RichTextBoxControl);
+            //Select one character if nothing is selected
+            if (RichTextBoxControl.Selection.IsEmpty)
+            {
+                EditingCommandHelper.SelectRightByCharacter(RichTextBoxControl);
+            }
+            
             var selectionRange = new TextRange(RichTextBoxControl.Selection.Start, RichTextBoxControl.Selection.End);
 
             //Read formatting
@@ -1265,6 +1271,21 @@ namespace RtfMacroStudioViewModel.ViewModel
                 keyInput == Key.End);
         }
 
+        public void CopyToClipboard()
+        {
+            RichTextBoxControl.Copy();
+        }
+
+        public void CutToClipboard()
+        {
+            RichTextBoxControl.Cut();
+        }
+
+        public void PasteFromClipboard()
+        {
+            RichTextBoxControl.Paste();
+        }
+
         public void ApplyCurrentFormatting()
         {
             if (RichTextBoxControl.Selection.IsEmpty)
@@ -1322,6 +1343,16 @@ namespace RtfMacroStudioViewModel.ViewModel
             
         }
 
+
+        public void OpenFile()
+        {
+            FileHelper.LoadFile(RichTextBoxControl);
+        }
+
+        public void SaveFile()
+        {
+            FileHelper.SaveFile(RichTextBoxControl);
+        }
         
     }
 }

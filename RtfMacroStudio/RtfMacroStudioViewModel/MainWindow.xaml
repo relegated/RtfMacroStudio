@@ -25,9 +25,9 @@
             <!-- Ribbon Tab 1 - Home -->
             <RibbonTab Header="Home" KeyTip="H" Margin="0,0,0,-5">
                 <RibbonGroup x:Name="ClipboardGroup" Header="Clipboard">
-                    <RibbonButton Label="Paste" KeyTip="V"></RibbonButton>
-                    <RibbonButton Label="Cut" KeyTip="X"></RibbonButton>
-                    <RibbonButton Label="Copy" KeyTip="C"></RibbonButton>
+                    <RibbonButton Label="Paste" KeyTip="V" SmallImageSource="Images/paste.png"></RibbonButton>
+                    <RibbonButton Label="Cut" KeyTip="X" SmallImageSource="Images/cut.png"></RibbonButton>
+                    <RibbonButton Label="Copy" KeyTip="C" SmallImageSource="Images/copy.png"></RibbonButton>
                 </RibbonGroup>
                 <RibbonGroup x:Name="FormatGroup" Header="Format">
                     <Label>Font</Label>
@@ -37,31 +37,31 @@
                     <ComboBox x:Name="RibbonComboBoxSize" Width="40" IsReadOnly="False"
                               ItemsSource="{Binding AvailableTextSizes}"
                               SelectedItem="{Binding CurrentTextSize}"></ComboBox>
-                    <RibbonToggleButton x:Name="ToggleButtonBold" IsChecked="{Binding CurrentBoldFlag}" Label="Bold" KeyTip="B"></RibbonToggleButton>
-                    <RibbonToggleButton x:Name="ToggleButtonItalic" IsChecked="{Binding CurrentItalicFlag}" Label="Italic" KeyTip="I"></RibbonToggleButton>
-                    <RibbonToggleButton x:Name="ToggleButtonUnderline" IsChecked="{Binding CurrentUnderlineFlag}" Label="Underline" KeyTip="U"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonBold" IsChecked="{Binding CurrentBoldFlag}" KeyTip="B" SmallImageSource="Images/bold.png"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonItalic" IsChecked="{Binding CurrentItalicFlag}" KeyTip="I" SmallImageSource="Images/italic.png"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonUnderline" IsChecked="{Binding CurrentUnderlineFlag}" Width="25" Height="25" SmallImageSource="Images/underline.png">                    </RibbonToggleButton>
                     <RibbonButton x:Name="RibbonButtonColor" Label="Color" Click="RibbonButtonColor_Click"></RibbonButton>
-                    <RibbonToggleButton x:Name="ToggleButtonAlignLeft" IsChecked="True" Label="Align Left" KeyTip="L" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
-                    <RibbonToggleButton x:Name="ToggleButtonAlignCenter" Label="Align Center" KeyTip="E" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
-                    <RibbonToggleButton x:Name="ToggleButtonAlignRight" Label="Align Right" KeyTip="R" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
-                    <RibbonToggleButton x:Name="ToggleButtonAlignJustify" Label="Align Justify" KeyTip="J" Checked="ToggleButtonAlignment_Checked"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonAlignLeft" IsChecked="True" KeyTip="L" Checked="ToggleButtonAlignment_Checked" SmallImageSource="Images/alignLeft.png"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonAlignCenter" KeyTip="E" Checked="ToggleButtonAlignment_Checked" SmallImageSource="Images/alignCenter.png"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonAlignRight" KeyTip="R" Checked="ToggleButtonAlignment_Checked" SmallImageSource="Images/alignRight.png"></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonAlignJustify" KeyTip="J" Checked="ToggleButtonAlignment_Checked" SmallImageSource="Images/alignJustify.png"></RibbonToggleButton>
                 </RibbonGroup>
 
             </RibbonTab>
             <!-- Ribbon Tab 2 - Macro -->
             <RibbonTab Header="Macro" KeyTip="M">
                 <RibbonGroup Header="New">
-                    <RibbonButton x:Name="RibbonButtonAddMacroKeystroke" Label="Keystroke" Click="RibbonButtonAddMacroKeystroke_Click"></RibbonButton>
-                    <RibbonMenuButton x:Name="RibbonMenuButtonSpecialKeys" Label="Special Key"></RibbonMenuButton>
-                    <RibbonMenuButton x:Name="RibbonMenuButtonFormat" Label="Format"></RibbonMenuButton>
-                    <RibbonButton x:Name="RibbonButtonAddVariable" Label="Variable" Click="RibbonButtonAddVariable_Click"></RibbonButton>
+                    <RibbonButton x:Name="RibbonButtonAddMacroKeystroke" Label="Keystroke" Click="RibbonButtonAddMacroKeystroke_Click" LargeImageSource="Images/keyboard.png"></RibbonButton>
+                    <RibbonMenuButton x:Name="RibbonMenuButtonSpecialKeys" Label="Special Key" LargeImageSource="Images/specialKeys.png"></RibbonMenuButton>
+                    <RibbonMenuButton x:Name="RibbonMenuButtonFormat" Label="Format" LargeImageSource="Images/format.png"></RibbonMenuButton>
+                    <RibbonButton x:Name="RibbonButtonAddVariable" Label="Variable" Click="RibbonButtonAddVariable_Click" LargeImageSource="Images/variable.png"></RibbonButton>
                 </RibbonGroup>
                 <RibbonGroup Header="Run">
-                    <RibbonButton x:Name="RibbonButtonRunMacro" Label="Run" Click="RibbonButtonRunMacro_Click"></RibbonButton>
+                    <RibbonButton x:Name="RibbonButtonRunMacro" Label="Run" Click="RibbonButtonRunMacro_Click" SmallImageSource="Images/play.png" LargeImageSource="Images/play.png"></RibbonButton>
                 </RibbonGroup>
                 <RibbonGroup Header="Record">
-                    <RibbonButton x:Name="RibbonButtonRecordMacro" Label="Record" Click="RibbonButtonRecordMacro_Click"></RibbonButton>
-                    <RibbonButton x:Name="RibbonButtonStopRecording" Label="Stop" Click="RibbonButtonStopRecording_Click"></RibbonButton>
+                    <RibbonToggleButton x:Name="ToggleButtonRecordMacro" Label="Record" IsChecked="False" Checked="ToggleButtonRecordControl_Checked" LargeImageSource="Images/record.png" ></RibbonToggleButton>
+                    <RibbonToggleButton x:Name="ToggleButtonStopRecording" Label="Stop" IsChecked="True" Checked="ToggleButtonRecordControl_Checked" LargeImageSource="Images/stop.png"></RibbonToggleButton>
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>

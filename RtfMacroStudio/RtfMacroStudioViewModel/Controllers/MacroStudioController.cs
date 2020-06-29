@@ -10,7 +10,7 @@ namespace RtfMacroStudioViewModel.Controllers
 
         public void StartMacroStudio()
         {
-            StudioViewModel viewModel = new StudioViewModel(new EditingCommandHelper(), new MacroTaskEditPresenter(), new MacroRunPresenter());
+            StudioViewModel viewModel = new StudioViewModel(new EditingCommandHelper(), new FileHelper(), new MacroTaskEditPresenter(), new MacroRunPresenter());
             Window mainWindow = new MainWindow(viewModel);
             mainWindow.Show();
         }
