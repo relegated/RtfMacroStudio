@@ -252,5 +252,20 @@ namespace RtfMacroStudioViewModel
                 viewModel.StopRecording();
             }
         }
+
+        private void OptionMenuItemOpen_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.OpenFile();
+        }
+
+        private void OptionMenuItemSave_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.SaveFile();
+        }
+
+        private void OptionMenuItemExit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }

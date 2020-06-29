@@ -19,7 +19,28 @@
         <Ribbon x:Name="RibbonMain" DockPanel.Dock="Top" Margin="0,0,0,5" Grid.ColumnSpan="2" Grid.Row="0">
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu KeyTip="F">
-                    <RibbonApplicationMenuItem x:Name="Exit" Header="Exit"></RibbonApplicationMenuItem>
+                    <RibbonApplicationMenu.SmallImageSource>
+                        <DrawingImage>
+                            <DrawingImage.Drawing>
+                                <GeometryDrawing>
+                                    <GeometryDrawing.Geometry>
+                                        <RectangleGeometry Rect="0,0,20,20"></RectangleGeometry>
+                                    </GeometryDrawing.Geometry>
+                                    <GeometryDrawing.Brush>
+                                        <VisualBrush Stretch="Uniform">
+                                            <VisualBrush.Visual>
+                                                <TextBlock Text="File" FontSize="16" Foreground="White" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </GeometryDrawing.Brush>
+                                </GeometryDrawing>
+                            </DrawingImage.Drawing>
+                        </DrawingImage>
+                    </RibbonApplicationMenu.SmallImageSource>
+                    <RibbonApplicationMenuItem x:Name="OptionMenuItemOpen" Header="Open" Click="OptionMenuItemOpen_Click" KeyTip="O" ImageSource="Images/open.png"></RibbonApplicationMenuItem>
+                    <RibbonApplicationMenuItem x:Name="OptionMenuItemSave" Header="Save As" Click="OptionMenuItemSave_Click" KeyTip="S" ImageSource="Images/save.png"></RibbonApplicationMenuItem>
+                    <RibbonSeparator></RibbonSeparator>
+                    <RibbonApplicationMenuItem x:Name="OptionMenuItemExit" Header="Exit" Click="OptionMenuItemExit_Click"></RibbonApplicationMenuItem>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
             <!-- Ribbon Tab 1 - Home -->
