@@ -64,6 +64,9 @@ namespace RtfMacroStudioViewModel.Enums
             ControlRightArrow,
             ControlShiftLeftArrow,
             ControlShiftRightArrow,
+            Cut,
+            Copy,
+            Paste,
         }
     }
 

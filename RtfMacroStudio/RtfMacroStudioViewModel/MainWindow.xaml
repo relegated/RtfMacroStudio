@@ -6,7 +6,7 @@
         xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
         xmlns:local="clr-namespace:RtfMacroStudioViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="603.324" Width="900" MinWidth="900" MinHeight="603">
+        Title="RTF Macro Studio" Height="603.324" Width="900" MinWidth="900" MinHeight="603" Icon="Images/RtfMacroStudio.png">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="38*"/>
@@ -46,9 +46,9 @@
             <!-- Ribbon Tab 1 - Home -->
             <RibbonTab Header="Home" KeyTip="H" Margin="0,0,0,-5">
                 <RibbonGroup x:Name="ClipboardGroup" Header="Clipboard">
-                    <RibbonButton Label="Paste" KeyTip="V" SmallImageSource="Images/paste.png"></RibbonButton>
-                    <RibbonButton Label="Cut" KeyTip="X" SmallImageSource="Images/cut.png"></RibbonButton>
-                    <RibbonButton Label="Copy" KeyTip="C" SmallImageSource="Images/copy.png"></RibbonButton>
+                    <RibbonButton x:Name="RibbonButtonPaste" Label="Paste" KeyTip="V" SmallImageSource="Images/paste.png" Click="RibbonButtonPaste_Click"></RibbonButton>
+                    <RibbonButton x:Name="RibbonButtonCut" Label="Cut" KeyTip="X" SmallImageSource="Images/cut.png" Click="RibbonButtonCut_Click"></RibbonButton>
+                    <RibbonButton x:Name="RibbonButtonCopy" Label="Copy" KeyTip="C" SmallImageSource="Images/copy.png" Click="RibbonButtonCopy_Click"></RibbonButton>
                 </RibbonGroup>
                 <RibbonGroup x:Name="FormatGroup" Header="Format">
                     <Label>Font</Label>

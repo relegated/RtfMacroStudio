@@ -267,5 +267,20 @@ namespace RtfMacroStudioViewModel
         {
             Close();
         }
+
+        private void RibbonButtonPaste_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.PasteFromClipboard();
+        }
+
+        private void RibbonButtonCut_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.CutToClipboard();
+        }
+
+        private void RibbonButtonCopy_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.CopyToClipboard();
+        }
     }
 }

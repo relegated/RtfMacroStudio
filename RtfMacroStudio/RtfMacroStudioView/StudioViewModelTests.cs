@@ -184,7 +184,7 @@ namespace RtfMacroStudioView
         [Test]
         public void SupportedSpecialKeysArePopulated()
         {
-            Assert.That(viewModel.SupportedSpecialKeys.Count == 23);
+            Assert.That(viewModel.SupportedSpecialKeys.Count == 26);
         }
 
         [Test]
@@ -764,6 +764,137 @@ namespace RtfMacroStudioView
             }
         }
 
+        [TestCase(Key.C, true)]
+        [TestCase(Key.X, true)]
+        [TestCase(Key.V, true)]
+        public void RecordMacroProcessesClipboardCommands(Key keyInput, bool withControl)
+        {
+            var modifierKeys = GetControlOnlyModifierKeyArray(withControl);
+            viewModel.RecordMacroStart();
+
+            viewModel.ProcessKey(keyInput, modifierKeys);
+
+            if (withControl)
+            {
+                Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.SpecialKey);
+                Assert.That(viewModel.CurrentTaskList[0].SpecialKey == GetClipboardSpecialKey(keyInput));
+            }
+        }
+
+        [Test]
+        public void MenuItemsAreProcessedDuringRecordMacro()
+        {
+            viewModel.RecordMacroStart();
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.CurrentBoldFlag = true;
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Format);
+            Assert.That(viewModel.CurrentTaskList[0].FormatType == EFormatType.Bold);
+
+            viewModel.ClearAllTasks();
+
+            viewModel.CurrentItalicFlag = true;
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Format);
+            Assert.That(viewModel.CurrentTaskList[0].FormatType == EFormatType.Italic);
+
+            viewModel.ClearAllTasks();
+
+            viewModel.CurrentUnderlineFlag = true;
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Format);
+            Assert.That(viewModel.CurrentTaskList[0].FormatType == EFormatType.Underline);
+
+            viewModel.ClearAllTasks();
+
+            viewModel.SelectedFont = "Times New Roman";
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Format);
+            Assert.That(viewModel.CurrentTaskList[0].FormatType == EFormatType.Font);
+            Assert.That(viewModel.CurrentTaskList[0].TextFont.Source == "Times New Roman");
+
+            viewModel.ClearAllTasks();
+
+            viewModel.CurrentColor = Colors.Red;
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Format);
+            Assert.That(viewModel.CurrentTaskList[0].FormatType == EFormatType.Color);
+            Assert.That(viewModel.CurrentTaskList[0].TextColor == Colors.Red);
+
+            viewModel.ClearAllTasks();
+
+            viewModel.CurrentTextSize = 18;
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.Format);
+            Assert.That(viewModel.CurrentTaskList[0].FormatType == EFormatType.TextSize);
+            Assert.That(viewModel.CurrentTaskList[0].TextSize == 18);
+
+            viewModel.ClearAllTasks();
+
+            viewModel.CopyToClipboard();
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.SpecialKey);
+            Assert.That(viewModel.CurrentTaskList[0].SpecialKey == ESpecialKey.Copy);
+
+            viewModel.ClearAllTasks();
+
+            viewModel.CutToClipboard();
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.SpecialKey);
+            Assert.That(viewModel.CurrentTaskList[0].SpecialKey == ESpecialKey.Cut);
+
+            viewModel.ClearAllTasks();
+
+            viewModel.PasteFromClipboard();
+
+            Assert.That(viewModel.CurrentTaskList[0].MacroTaskType == EMacroTaskType.SpecialKey);
+            Assert.That(viewModel.CurrentTaskList[0].SpecialKey == ESpecialKey.Paste);
+        }
+
+        [Test]
+        public void IfMacroIsNotRecordingMenuItemsAreNotAdded()
+        {
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.CurrentBoldFlag = true;
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.CurrentItalicFlag = true;
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.CurrentUnderlineFlag = true;
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.SelectedFont = "Times New Roman";
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.CurrentColor = Colors.Red;
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.CurrentTextSize = 18;
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.CopyToClipboard();
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.CutToClipboard();
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+
+            viewModel.PasteFromClipboard();
+
+            Assert.That(viewModel.CurrentTaskList.Count == 0);
+        }
+
         [Test]
         public void RecordMacroTextStartsStringCapture()
         {
@@ -1170,6 +1301,22 @@ namespace RtfMacroStudioView
             viewModel.SaveFile();
 
             mockFileHelper.Verify(m => m.SaveFile(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        private ESpecialKey GetClipboardSpecialKey(Key keyInput)
+        {
+            if (keyInput == Key.C)
+            {
+                return ESpecialKey.Copy;
+            }
+            else if (keyInput == Key.X)
+            {
+                return ESpecialKey.Cut;
+            }
+            else
+            {
+                return ESpecialKey.Paste;
+            }
         }
 
         private void GivenRichTextWordIsCopied()

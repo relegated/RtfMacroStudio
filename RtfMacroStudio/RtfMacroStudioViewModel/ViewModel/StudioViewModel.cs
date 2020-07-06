@@ -48,6 +48,16 @@ namespace RtfMacroStudioViewModel.ViewModel
             {
                 selectedFont = value;
                 ApplyCurrentFormatting();
+
+                if (IsCurrentlyRecording)
+                {
+                    AddFormatMacroTask(new MacroTask()
+                    {
+                        MacroTaskType = EMacroTaskType.Format,
+                        FormatType = EFormatType.Font,
+                        TextFont = new FontFamily(selectedFont),
+                    });
+                }
             }
         }
 
@@ -59,6 +69,15 @@ namespace RtfMacroStudioViewModel.ViewModel
             {
                 currentBoldFlag = value;
                 ApplyCurrentFormatting();
+
+                if (IsCurrentlyRecording)
+                {
+                    AddFormatMacroTask(new MacroTask()
+                    {
+                        MacroTaskType = EMacroTaskType.Format,
+                        FormatType = EFormatType.Bold,
+                    });
+                }
             }
         }
 
@@ -70,6 +89,15 @@ namespace RtfMacroStudioViewModel.ViewModel
             {
                 currentItalicFlag = value;
                 ApplyCurrentFormatting();
+
+                if (IsCurrentlyRecording)
+                {
+                    AddFormatMacroTask(new MacroTask()
+                    {
+                        MacroTaskType = EMacroTaskType.Format,
+                        FormatType = EFormatType.Italic,
+                    });
+                }
             }
         }
 
@@ -81,6 +109,34 @@ namespace RtfMacroStudioViewModel.ViewModel
             {
                 currentTextAlignment = value;
                 ApplyCurrentFormatting();
+                
+                if (IsCurrentlyRecording)
+                {
+                    var newAlignmentTask = new MacroTask()
+                    {
+                        MacroTaskType = EMacroTaskType.Format,
+                    };
+
+                    switch (currentTextAlignment)
+                    {
+                        case TextAlignment.Left:
+                            newAlignmentTask.FormatType = EFormatType.AlignLeft;
+                            break;
+                        case TextAlignment.Right:
+                            newAlignmentTask.FormatType = EFormatType.AlignRight;
+                            break;
+                        case TextAlignment.Center:
+                            newAlignmentTask.FormatType = EFormatType.AlignCenter;
+                            break;
+                        case TextAlignment.Justify:
+                            newAlignmentTask.FormatType = EFormatType.AlignJustify;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    AddFormatMacroTask(newAlignmentTask);
+                }
             }
         }
 
@@ -92,6 +148,15 @@ namespace RtfMacroStudioViewModel.ViewModel
             {
                 currentUnderlineFlag = value;
                 ApplyCurrentFormatting();
+
+                if (IsCurrentlyRecording)
+                {
+                    AddFormatMacroTask(new MacroTask()
+                    {
+                        MacroTaskType = EMacroTaskType.Format,
+                        FormatType = EFormatType.Underline,
+                    });
+                }
             }
         }
 
@@ -103,6 +168,16 @@ namespace RtfMacroStudioViewModel.ViewModel
             {
                 currentColor = value;
                 ApplyCurrentFormatting();
+
+                if (IsCurrentlyRecording)
+                {
+                    AddFormatMacroTask(new MacroTask()
+                    {
+                        MacroTaskType = EMacroTaskType.Format,
+                        FormatType = EFormatType.Color,
+                        TextColor = currentColor,
+                    });
+                }
             }
         }
 
@@ -133,6 +208,16 @@ namespace RtfMacroStudioViewModel.ViewModel
                     newValue = 128;
                 currentTextSize = newValue;
                 ApplyCurrentFormatting();
+
+                if (IsCurrentlyRecording)
+                {
+                    AddFormatMacroTask(new MacroTask()
+                    {
+                        MacroTaskType = EMacroTaskType.Format,
+                        FormatType = EFormatType.TextSize,
+                        TextSize = currentTextSize,
+                    });
+                }
             }
         }
 
@@ -602,6 +687,15 @@ namespace RtfMacroStudioViewModel.ViewModel
                     EditingCommandHelper.SelectRightByWord(RichTextBoxControl);
                     
                     break;
+                case ESpecialKey.Cut:
+                    CutToClipboard();
+                    break;
+                case ESpecialKey.Copy:
+                    CopyToClipboard();
+                    break;
+                case ESpecialKey.Paste:
+                    PasteFromClipboard();
+                    break;
                 default:
                     break;
             }
@@ -855,7 +949,7 @@ namespace RtfMacroStudioViewModel.ViewModel
                 else if (IsControlPressed(modifierKeys))
                 {
                     IsCapturingString = false;
-                    CreateFormatKeyTask(keyInput);
+                    CreateFormatKeyOrClipboardTask(keyInput);
                 }
                 else
                 {
@@ -1094,7 +1188,7 @@ namespace RtfMacroStudioViewModel.ViewModel
             }
         }
 
-        private void CreateFormatKeyTask(Key keyInput)
+        private void CreateFormatKeyOrClipboardTask(Key keyInput)
         {
             if (keyInput == Key.B)
             {
@@ -1123,6 +1217,20 @@ namespace RtfMacroStudioViewModel.ViewModel
             if (keyInput == Key.R)
             {
                 AddFormatMacroTask("AlignRight");
+            }
+
+            //clipboard are not format but special keys tasks
+            if (keyInput == Key.C)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Copy);
+            }
+            if (keyInput == Key.X)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Cut);
+            }
+            if (keyInput == Key.V)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Paste);
             }
         }
 
@@ -1274,16 +1382,31 @@ namespace RtfMacroStudioViewModel.ViewModel
         public void CopyToClipboard()
         {
             RichTextBoxControl.Copy();
+
+            if (IsCurrentlyRecording)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Copy);
+            }
         }
 
         public void CutToClipboard()
         {
             RichTextBoxControl.Cut();
+
+            if (IsCurrentlyRecording)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Cut);
+            }
         }
 
         public void PasteFromClipboard()
         {
             RichTextBoxControl.Paste();
+
+            if (IsCurrentlyRecording)
+            {
+                AddSpecialKeyMacroTask(ESpecialKey.Paste);
+            }
         }
 
         public void ApplyCurrentFormatting()
