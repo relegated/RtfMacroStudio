@@ -1,23 +1,15 @@
-﻿using RtfMacroStudioViewModel.ViewModel;
+﻿using RtfMacroStudioViewModel.Controls;
+using RtfMacroStudioViewModel.Enums;
+using RtfMacroStudioViewModel.ViewModel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Controls.Ribbon;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Controls.Ribbon;
-using RtfMacroStudioViewModel.Controls;
 using static RtfMacroStudioViewModel.Enums.Enums;
-using RtfMacroStudioViewModel.Enums;
-using System.Windows.Forms;
 
 namespace RtfMacroStudioViewModel
 {
@@ -27,7 +19,6 @@ namespace RtfMacroStudioViewModel
     public partial class MainWindow : Window
     {
         StudioViewModel viewModel;
-        private Point mouseStartPoint;
 
         public MainWindow(StudioViewModel viewModel)
         {
@@ -111,6 +102,7 @@ namespace RtfMacroStudioViewModel
                     {
                         TaskList.Children.Add(new MacroTaskControl(macroTask, viewModel));
                     }
+                    ScrollViewerTaskList.ScrollToBottom();
                     break;
                 case nameof(viewModel.CurrentRichText):
                     RichTextBoxMain.Focus();
@@ -281,6 +273,21 @@ namespace RtfMacroStudioViewModel
         private void RibbonButtonCopy_Click(object sender, RoutedEventArgs e)
         {
             viewModel.CopyToClipboard();
+        }
+
+        private void RichTextStudioForm_Closed(object sender, EventArgs e)
+        {
+            viewModel.CloseProgram();
+        }
+
+        private void RibbonButtonClearAllTasks_Click(object sender, RoutedEventArgs e)
+        {
+            if (System.Windows.MessageBox.Show("This will delete all macro tasks.  Are you sure?", 
+                "Confirm Clear Macro Tasks", MessageBoxButton.YesNo, MessageBoxImage.Warning)
+                == MessageBoxResult.Yes)
+            {
+                viewModel.ClearAllTasks();
+            }
         }
     }
 }

@@ -26,6 +26,7 @@ namespace RtfMacroStudioView
         Mock<IEditingCommandHelper> mockEditingCommandHelper;
         Mock<IMacroTaskEditPresenter> mockTaskEditPresenter;
         Mock<IMacroRunPresenter> mockRunPresenter;
+        Mock<IProgressPresenter> mockProgressPresenter;
         Mock<IFileHelper> mockFileHelper;
 
         [SetUp]
@@ -35,7 +36,8 @@ namespace RtfMacroStudioView
             mockEditingCommandHelper = new Mock<IEditingCommandHelper>();
             mockRunPresenter = new Mock<IMacroRunPresenter>();
             mockFileHelper = new Mock<IFileHelper>();
-            viewModel = new StudioViewModelMock(mockEditingCommandHelper.Object, mockFileHelper.Object, mockTaskEditPresenter.Object, mockRunPresenter.Object);
+            mockProgressPresenter = new Mock<IProgressPresenter>();
+            viewModel = new StudioViewModelMock(mockEditingCommandHelper.Object, mockFileHelper.Object, mockTaskEditPresenter.Object, mockRunPresenter.Object, mockProgressPresenter.Object);
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
             propertyChangedText = string.Empty;
             mockEditingCommandHelper.Setup(m => m.SelectRightByWord(It.IsAny<RichTextBox>()))
@@ -171,7 +173,7 @@ namespace RtfMacroStudioView
             ThenTheMacroUpdatedTheTextBasedOnTheNumberOfTimesTextWasRun(numberOfTasksToInsert, textToAdd);
         }
 
-        
+
 
         [Test]
         public void CanGetTextFromMacroTask()
@@ -191,7 +193,7 @@ namespace RtfMacroStudioView
         public void TextInputChangesCaratPosition()
         {
             Assert.That(viewModel.RichTextBoxControl.Document.ContentStart.GetOffsetToPosition(viewModel.RichTextBoxControl.CaretPosition) == 0);
-            
+
             GivenLinesOfTextAreAddedToCurrentRichText();
 
             var offset = viewModel.RichTextBoxControl.Document.ContentStart.GetOffsetToPosition(viewModel.RichTextBoxControl.CaretPosition);
@@ -1119,7 +1121,7 @@ namespace RtfMacroStudioView
         public void NoTasksRunIfMacroRunPresenterIsCancelled()
         {
             GivenARepeatableTask();
-            
+
             GivenUserWillCancelRunPresenter();
 
             viewModel.RunMacroPresenter();
@@ -1301,6 +1303,43 @@ namespace RtfMacroStudioView
             viewModel.SaveFile();
 
             mockFileHelper.Verify(m => m.SaveFile(It.IsAny<RichTextBox>()), Times.Once);
+        }
+
+        [Test]
+        public void ProgressPresenterCalledWhenTaskIsRun()
+        {
+            viewModel.AddTextInputMacroTask("Hello");
+
+            viewModel.RunMacro();
+
+
+            mockProgressPresenter.Verify(m => m.ShowDialog(), Times.Once);
+            mockProgressPresenter.Verify(m => m.Hide(), Times.Once);
+        }
+
+        [TestCase(5)]
+        [TestCase(10)]
+        public void ProgressPresenterIsUpdatedWithNumberOfTasksToRun(int n)
+        {
+            mockProgressPresenter.SetupAllProperties();
+            GivenARepeatableTask();
+
+            GivenUserWillChoseNFromRunPresenter(n);
+
+            viewModel.RunMacroPresenter();
+
+            mockProgressPresenter.VerifySet(m => m.CurrentlyRunningXofN = It.IsAny<int>(), Times.Exactly(n));
+            mockProgressPresenter.VerifySet(m => m.RunNTimes = It.IsAny<int>(), Times.Once);
+        }
+
+        [Test]
+        public void ProgessPresenterIsClosedWhenMainWindowIsClosing()
+        {
+            viewModel.AddTextInputMacroTask("Hello");
+            viewModel.RunMacro();
+
+            viewModel.CloseProgram();
+            mockProgressPresenter.Verify(m => m.Dispose(), Times.Once);
         }
 
         private ESpecialKey GetClipboardSpecialKey(Key keyInput)

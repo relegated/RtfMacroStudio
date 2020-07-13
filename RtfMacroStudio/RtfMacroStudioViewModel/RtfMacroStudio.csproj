@@ -73,6 +73,9 @@
     <Compile Include="Controls\MacroTaskEditControl.xaml.cs">
       <DependentUpon>MacroTaskEditControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ProgressPresenterWindow.xaml.cs">
+      <DependentUpon>ProgressPresenterWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TextSizeEditControl.xaml.cs">
       <DependentUpon>TextSizeEditControl.xaml</DependentUpon>
     </Compile>
@@ -85,6 +88,7 @@
     <Compile Include="Interfaces\IFileHelper.cs" />
     <Compile Include="Interfaces\IMacroRunPresenter.cs" />
     <Compile Include="Interfaces\IMacroTaskEditPresenter.cs" />
+    <Compile Include="Interfaces\IProgressPresenter.cs" />
     <Compile Include="Models\MacroTask.cs" />
     <Compile Include="Helpers\EditingCommandHelper.cs" />
     <Compile Include="Models\Variable.cs" />
@@ -104,6 +108,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\MacroTaskEditControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ProgressPresenterWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -206,6 +214,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Icons\RtfMacroStudio.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\deleteAll.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

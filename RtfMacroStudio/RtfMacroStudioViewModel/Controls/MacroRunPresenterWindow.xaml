@@ -10,7 +10,7 @@
         <RadioButton x:Name="RadioOnce" Content="_Once" HorizontalAlignment="Left" Margin="28,13,0,0" VerticalAlignment="Top" IsChecked="True" Checked="Radio_Checked" />
         <RadioButton x:Name="RadioNTimes" Content="         _Times" HorizontalAlignment="Left" Margin="28,45,0,0" VerticalAlignment="Top" Checked="Radio_Checked"/>
         <RadioButton x:Name="RadioEnd" Content="Until End Of _File" HorizontalAlignment="Left" Margin="28,73,0,0" VerticalAlignment="Top" Checked="Radio_Checked"/>
-        <TextBox x:Name="TextNTimes" HorizontalAlignment="Left" Height="20" Margin="45,43,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="30" PreviewTextInput="TextNTimes_PreviewTextInput"/>
+        <TextBox x:Name="TextNTimes" HorizontalAlignment="Left" Height="20" Margin="45,43,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="30" PreviewTextInput="TextNTimes_PreviewTextInput" GotFocus="TextNTimes_GotFocus"/>
         <Button x:Name="ButtonOK" IsDefault="True" Content="OK" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="72,119,0,0" Click="ButtonOK_Click" />
         <Button x:Name="ButtonCancel" IsCancel="True" Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="161,119,0,0" Click="ButtonCancel_Click"/>
 

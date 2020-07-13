@@ -3,15 +3,11 @@ using RtfMacroStudioViewModel.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 using static RtfMacroStudioViewModel.Enums.Enums;
 
 namespace RtfMacroStudioViewModel.ViewModel
@@ -37,6 +33,7 @@ namespace RtfMacroStudioViewModel.ViewModel
         public IFileHelper FileHelper { get; }
         public IMacroTaskEditPresenter MacroTaskEditPresenter { get; }
         public IMacroRunPresenter MacroRunPresenter { get; }
+        public IProgressPresenter ProgressPresenter { get; }
         public List<EFormatType> SupportedFormattingOptions { get; set; } = new List<EFormatType>();
         public List<string> AvailableFonts { get; set; } = new List<string>();
 
@@ -295,11 +292,50 @@ namespace RtfMacroStudioViewModel.ViewModel
             }
         }
 
+        private bool isRunningTask = false;
+        private bool IsRunningTask 
+        {
+            get => isRunningTask;
+            set
+            {
+                isRunningTask = value;
+                if (isRunningTask)
+                {
+                    ProgressPresenter.ShowDialog();
+                }
+                else
+                {
+                    ProgressPresenter.Hide();
+                }
+            }
+        }
+
+        private int runNTimes = 1;
+        public int RunNTimes 
+        {
+            get => runNTimes;
+            private set
+            {
+                runNTimes = value;
+                ProgressPresenter.RunNTimes = runNTimes;
+            }
+        }
+        private int currentlyRunningXofN = 1;
+        public int CurrentlyRunningXofN 
+        {
+            get => currentlyRunningXofN;
+            private set
+            {
+                currentlyRunningXofN = value;
+                ProgressPresenter.CurrentlyRunningXofN = currentlyRunningXofN;
+            }
+        }
+
         #endregion
 
         #region Constructor
 
-        public StudioViewModel(IEditingCommandHelper editingCommandHelper, IFileHelper fileHelper, IMacroTaskEditPresenter macroTaskEditPresenter, IMacroRunPresenter macroRunPresenter)
+        public StudioViewModel(IEditingCommandHelper editingCommandHelper, IFileHelper fileHelper, IMacroTaskEditPresenter macroTaskEditPresenter, IMacroRunPresenter macroRunPresenter, IProgressPresenter progressPresenter)
         {
             RichTextBoxControl = new RichTextBox();
             GetAvailableFonts();
@@ -314,6 +350,7 @@ namespace RtfMacroStudioViewModel.ViewModel
             FileHelper = fileHelper;
             MacroTaskEditPresenter = macroTaskEditPresenter;
             MacroRunPresenter = macroRunPresenter;
+            ProgressPresenter = progressPresenter;
         }
 
         public void EditMacroTaskBegin(MacroTask macroTask)
@@ -440,10 +477,14 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public virtual void RunMacro(int numberOfTimes)
         {
+            IsRunningTask = true;
+            RunNTimes = numberOfTimes;
             for (int i = 0; i < numberOfTimes; i++)
             {
+                CurrentlyRunningXofN = i;
                 RunMacro();
             }
+            IsRunningTask = false;
         }
         
         public virtual void RunMacroToEndOfText()
@@ -455,6 +496,13 @@ namespace RtfMacroStudioViewModel.ViewModel
 
         public virtual void RunMacro()
         {
+            bool singleTask = IsRunningTask == false;
+            
+            if (singleTask)
+            {
+                IsRunningTask = true;
+            }
+
             foreach (var task in CurrentTaskList)
             {
                 switch (task.MacroTaskType)
@@ -475,6 +523,12 @@ namespace RtfMacroStudioViewModel.ViewModel
                         break;
                 }
             }
+
+            if (singleTask)
+            {
+                IsRunningTask = false;
+            }
+
             CurrentRichText = RichTextBoxControl.Document;
             PropertyChanged?.Invoke(nameof(CurrentRichText));
         }
@@ -596,7 +650,6 @@ namespace RtfMacroStudioViewModel.ViewModel
                     break;
                 case ESpecialKey.DownArrow:
                     EditingCommandHelper.MoveDownByLine(RichTextBoxControl);
-                   // EditingCommands.MoveDownByLine.Execute(null, RichTextBoxControl);
                     
                     break;
                 case ESpecialKey.Home:
@@ -1476,6 +1529,11 @@ namespace RtfMacroStudioViewModel.ViewModel
         {
             FileHelper.SaveFile(RichTextBoxControl);
         }
+     
         
+        public void CloseProgram()
+        {
+            ProgressPresenter.Dispose();
+        }
     }
 }

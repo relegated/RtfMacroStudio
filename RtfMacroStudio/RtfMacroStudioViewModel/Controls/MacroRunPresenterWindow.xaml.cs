@@ -37,6 +37,12 @@ namespace RtfMacroStudioViewModel.Controls
             {
                 MacroRunPresenter.Option = ERunPresenterOption.NTimes;
                 TextNTimes.IsReadOnly = false;
+
+                TextNTimes.GotFocus -= TextNTimes_GotFocus;
+
+                TextNTimes.Focus();
+
+                TextNTimes.GotFocus += TextNTimes_GotFocus;
             }
             else if (checkedOption == nameof(RadioEnd))
             {
@@ -50,11 +56,6 @@ namespace RtfMacroStudioViewModel.Controls
             int n;
 
             e.Handled = (int.TryParse(e.Text, out n) == false);
-
-            if (!e.Handled)
-            {
-                MacroRunPresenter.N = n;
-            }
         }
 
         private void ButtonCancel_Click(object sender, RoutedEventArgs e)
@@ -65,8 +66,14 @@ namespace RtfMacroStudioViewModel.Controls
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
         {
+            MacroRunPresenter.N = int.Parse(TextNTimes.Text);
             DialogResult = true;
             this.Close();
+        }
+
+        private void TextNTimes_GotFocus(object sender, RoutedEventArgs e)
+        {
+            RadioNTimes.IsChecked = true;
         }
     }
 }

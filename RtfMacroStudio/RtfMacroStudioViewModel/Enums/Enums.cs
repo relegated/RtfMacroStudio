@@ -170,6 +170,12 @@ namespace RtfMacroStudioViewModel.Enums
                     return "Control + Shift + Left Arrow";
                 case ESpecialKey.ControlShiftRightArrow:
                     return "Control + Shift + Right Arrow";
+                case ESpecialKey.Copy:
+                    return "Copy";
+                case ESpecialKey.Cut:
+                    return "Cut";
+                case ESpecialKey.Paste:
+                    return "Paste";
                 default:
                     return string.Empty;
             }

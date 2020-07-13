@@ -6,7 +6,7 @@
         xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
         xmlns:local="clr-namespace:RtfMacroStudioViewModel"
         mc:Ignorable="d"
-        Title="RTF Macro Studio" Height="603.324" Width="900" MinWidth="900" MinHeight="603" Icon="Images/RtfMacroStudio.png">
+        Title="RTF Macro Studio" Height="603.324" Width="900" MinWidth="900" MinHeight="603" Icon="Images/RtfMacroStudio.png" Closed="RichTextStudioForm_Closed">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="38*"/>
@@ -84,17 +84,22 @@
                     <RibbonToggleButton x:Name="ToggleButtonRecordMacro" Label="Record" IsChecked="False" Checked="ToggleButtonRecordControl_Checked" LargeImageSource="Images/record.png" ></RibbonToggleButton>
                     <RibbonToggleButton x:Name="ToggleButtonStopRecording" Label="Stop" IsChecked="True" Checked="ToggleButtonRecordControl_Checked" LargeImageSource="Images/stop.png"></RibbonToggleButton>
                 </RibbonGroup>
+                <RibbonGroup Header="Clear Tasks">
+                    <RibbonButton x:Name="RibbonButtonClearAllTasks" Label="Clear All Tasks" Click="RibbonButtonClearAllTasks_Click" LargeImageSource="Images/deleteAll.png">
+                        
+                    </RibbonButton>
+                </RibbonGroup>
             </RibbonTab>
         </Ribbon>
 
-        <RichTextBox x:Name="RichTextBoxMain" Margin="8,8,8,8" Grid.Column="1" Grid.Row="1" LostFocus="RichTextBoxMain_LostFocus" KeyUp="RichTextBoxMain_KeyUp">
+        <RichTextBox x:Name="RichTextBoxMain" Margin="8,8,8,8" Grid.Column="1" Grid.Row="1" VerticalScrollBarVisibility="Auto" LostFocus="RichTextBoxMain_LostFocus" KeyUp="RichTextBoxMain_KeyUp">
             <FlowDocument>
                 <Paragraph>
                     <Run Text="RichTextBox"/>
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,8,8,8" Grid.Row="1">
+        <ScrollViewer x:Name="ScrollViewerTaskList" VerticalScrollBarVisibility="Auto" Margin="8,8,8,8" Grid.Row="1">
             <StackPanel x:Name="TaskList" AllowDrop="True"/>
         </ScrollViewer>
 
